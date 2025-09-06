@@ -1,0 +1,49 @@
+/* Custom edge styling for better visibility */
+
+/* Enhanced edge visibility */
+.react-flow__edge-path {
+  stroke-width: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Make edges more visible on hover */
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
+}
+
+/* Connection line styling */
+.react-flow__connectionline {
+  stroke: #4ecdc4;
+  stroke-width: 2px;
+  stroke-dasharray: 5, 5;
+  animation: dash 0.5s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* Edge labels */
+.react-flow__edge-text {
+  fill: #2d3748;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Edge selection styling */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff6b6b;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 6px rgba(255, 107, 107, 0.6));
+}
+
+/* Better edge button positioning */
+.react-flow__edge .react-flow__edge-textbg {
+  fill: rgba(255, 255, 255, 0.9);
+  stroke: rgba(78, 205, 196, 0.3);
+  stroke-width: 1px;
+}

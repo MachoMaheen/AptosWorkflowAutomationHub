@@ -4,7 +4,37 @@ Directory structure:
     │   └── main.py
     └── frontend/
         ├── README.md
-        └── package.json
+        ├── package.json
+        └── src/
+            ├── App.css
+            ├── App.js
+            ├── draggableNode.js
+            ├── edges.css
+            ├── index.css
+            ├── index.js
+            ├── PipelineContext.js
+            ├── store.js
+            ├── submit.css
+            ├── submit.js
+            ├── toolbar.css
+            ├── toolbar.js
+            ├── ui.css
+            ├── ui.js
+            ├── components/
+            │   ├── BaseNode.css
+            │   └── BaseNode.js
+            ├── nodes/
+            │   ├── apiNode.js
+            │   ├── conditionalNode.js
+            │   ├── filterNode.js
+            │   ├── inputNode.js
+            │   ├── llmNode.js
+            │   ├── mathNode.js
+            │   ├── outputNode.js
+            │   ├── textNode.js
+            │   └── timerNode.js
+            └── styles/
+                └── nodes.css
 
 ================================================
 FILE: backend/main.py
@@ -205,8 +235,10 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ================================================
 FILE: frontend/package.json
 ================================================
+# Enhanced package.json with Aptos Dependencies
+
 {
-  "name": "frontend",
+  "name": "aptos-workflow-automation-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -218,7 +250,22 @@ FILE: frontend/package.json
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    
+    "@aptos-labs/wallet-adapter-react": "^3.0.0",
+    "@aptos-labs/wallet-adapter-core": "^4.0.0",
+    "@aptos-labs/ts-sdk": "^1.8.0",
+    "@petra-wallet/wallet-adapter-plugin": "^0.3.0",
+    "@martianwallet/wallet-adapter-plugin": "^0.1.0",
+    "@pontem/wallet-adapter-plugin": "^0.2.0",
+    "@fewcha/wallet-adapter-plugin": "^0.1.0",
+    
+    "axios": "^1.6.0",
+    "react-hot-toast": "^2.4.1",
+    "lucide-react": "^0.292.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "framer-motion": "^10.16.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -243,7 +290,2268 @@ FILE: frontend/package.json
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.6",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
   }
 }
 
+
+================================================
+FILE: frontend/src/App.css
+================================================
+/* App.css */
+/* Main application styling */
+
+.app {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Overlay toolbar positioning */
+.toolbar-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .toolbar-overlay {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-overlay {
+    padding: 12px;
+  }
+}
+
+
+
+================================================
+FILE: frontend/src/App.js
+================================================
+import { PipelineToolbar } from "./toolbar";
+import { PipelineUI } from "./ui";
+import "./App.css";
+
+function App() {
+  return (
+    <div className="app">
+      {/* Full screen pipeline UI */}
+      <PipelineUI />
+
+      {/* Overlay toolbar */}
+      <div className="toolbar-overlay">
+        <PipelineToolbar />
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+
+================================================
+FILE: frontend/src/draggableNode.js
+================================================
+// draggableNode.js
+
+export const DraggableNode = ({ type, label }) => {
+  const onDragStart = (event, nodeType) => {
+    const appData = { nodeType };
+    event.target.style.cursor = "grabbing";
+    event.dataTransfer.setData(
+      "application/reactflow",
+      JSON.stringify(appData)
+    );
+    event.dataTransfer.effectAllowed = "move";
+  };
+
+  return (
+    <div
+      className={`draggable-node ${type}`}
+      onDragStart={(event) => onDragStart(event, type)}
+      onDragEnd={(event) => (event.target.style.cursor = "grab")}
+      draggable
+    >
+      <span>{label}</span>
+    </div>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/edges.css
+================================================
+/* Custom edge styling for better visibility */
+
+/* Enhanced edge visibility */
+.react-flow__edge-path {
+  stroke-width: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Make edges more visible on hover */
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
+}
+
+/* Connection line styling */
+.react-flow__connectionline {
+  stroke: #4ecdc4;
+  stroke-width: 2px;
+  stroke-dasharray: 5, 5;
+  animation: dash 0.5s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* Edge labels */
+.react-flow__edge-text {
+  fill: #2d3748;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Edge selection styling */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff6b6b;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 6px rgba(255, 107, 107, 0.6));
+}
+
+/* Better edge button positioning */
+.react-flow__edge .react-flow__edge-textbg {
+  fill: rgba(255, 255, 255, 0.9);
+  stroke: rgba(78, 205, 196, 0.3);
+  stroke-width: 1px;
+}
+
+
+
+================================================
+FILE: frontend/src/index.css
+================================================
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f7fafc;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+/* Reset some default styles */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease;
+}
+
+
+
+================================================
+FILE: frontend/src/index.js
+================================================
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+
+================================================
+FILE: frontend/src/PipelineContext.js
+================================================
+[Empty file]
+
+
+================================================
+FILE: frontend/src/store.js
+================================================
+// store.js
+
+import { create } from "zustand";
+import {
+  addEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  MarkerType,
+} from "@xyflow/react";
+
+export const useStore = create((set, get) => ({
+  nodes: [],
+  edges: [],
+  nodeIDs: {},
+  getNodeID: (type) => {
+    const newIDs = { ...get().nodeIDs };
+    if (newIDs[type] === undefined) {
+      newIDs[type] = 0;
+    }
+    newIDs[type] += 1;
+    set({ nodeIDs: newIDs });
+    return `${type}-${newIDs[type]}`;
+  },
+  addNode: (node) => {
+    set({
+      nodes: [...get().nodes, node],
+    });
+  },
+  onNodesChange: (changes) => {
+    set({
+      nodes: applyNodeChanges(changes, get().nodes),
+    });
+  },
+  onEdgesChange: (changes) => {
+    set({
+      edges: applyEdgeChanges(changes, get().edges),
+    });
+  },
+  onConnect: (connection) => {
+    set({
+      edges: addEdge(
+        {
+          ...connection,
+          type: "smoothstep",
+          animated: true,
+          markerEnd: { type: MarkerType.Arrow, height: "20px", width: "20px" },
+        },
+        get().edges
+      ),
+    });
+  },
+  updateNodeField: (nodeId, fieldName, fieldValue) => {
+    set({
+      nodes: get().nodes.map((node) => {
+        if (node.id === nodeId) {
+          node.data = { ...node.data, [fieldName]: fieldValue };
+        }
+
+        return node;
+      }),
+    });
+  },
+}));
+
+
+
+================================================
+FILE: frontend/src/submit.css
+================================================
+/* submit.css */
+/* Styling for the submit button component */
+
+.submit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin: 10px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submit-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.submit-icon {
+  font-size: 18px;
+}
+
+.submit-hint {
+  margin-top: 8px;
+  color: #718096;
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Loading animation */
+.submit-button.loading {
+  pointer-events: none;
+}
+
+.submit-button.loading .submit-icon {
+  animation: rocket-launch 1s ease-in-out infinite;
+}
+
+@keyframes rocket-launch {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .submit-button {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .submit-icon {
+    font-size: 16px;
+  }
+}
+
+
+
+================================================
+FILE: frontend/src/submit.js
+================================================
+Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x81 in position 4306: character maps to <undefined>
+
+
+================================================
+FILE: frontend/src/toolbar.css
+================================================
+/* toolbar.css */
+/* Styling for the toolbar component */
+
+.pipeline-toolbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toolbar-title {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+}
+
+.node-category {
+  margin-bottom: 20px;
+}
+
+.node-category:last-child {
+  margin-bottom: 0;
+}
+
+.category-title {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+.node-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Style for draggable nodes in toolbar */
+.draggable-node {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: grab;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.draggable-node:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.draggable-node:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .pipeline-toolbar {
+    margin: 5px;
+    padding: 12px;
+  }
+
+  .toolbar-title {
+    font-size: 16px;
+  }
+
+  .node-grid {
+    gap: 6px;
+  }
+
+  .draggable-node {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+
+
+================================================
+FILE: frontend/src/toolbar.js
+================================================
+// toolbar.js
+
+import { DraggableNode } from "./draggableNode";
+import "./toolbar.css";
+
+export const PipelineToolbar = () => {
+  return (
+    <div className="pipeline-toolbar">
+      <h2 className="toolbar-title">Node Library</h2>
+
+      <div className="node-category">
+        <h3 className="category-title">Core Nodes</h3>
+        <div className="node-grid">
+          <DraggableNode type="customInput" label="Input" />
+          <DraggableNode type="llm" label="LLM" />
+          <DraggableNode type="customOutput" label="Output" />
+          <DraggableNode type="text" label="Text" />
+        </div>
+      </div>
+
+      <div className="node-category">
+        <h3 className="category-title">Processing Nodes</h3>
+        <div className="node-grid">
+          <DraggableNode type="math" label="Math" />
+          <DraggableNode type="filter" label="Filter" />
+          <DraggableNode type="conditional" label="Conditional" />
+        </div>
+      </div>
+
+      <div className="node-category">
+        <h3 className="category-title">Integration Nodes</h3>
+        <div className="node-grid">
+          <DraggableNode type="api" label="API" />
+          <DraggableNode type="timer" label="Timer" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/ui.css
+================================================
+/* ui.css */
+/* Styling for the UI component */
+
+.react-flow-wrapper {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* ReactFlow customizations */
+.react-flow {
+  background: transparent;
+}
+
+.react-flow__background {
+  background: radial-gradient(
+    circle at 1px 1px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 0
+  );
+  background-size: 20px 20px;
+}
+
+.react-flow__controls {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__controls button {
+  border: none;
+  background: transparent;
+  color: #4a5568;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls button:hover {
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+}
+
+.react-flow__minimap {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke: #4ecdc4;
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.react-flow__connection-line {
+  stroke: #4ecdc4;
+  stroke-width: 2;
+  stroke-dasharray: 5;
+}
+
+/* Selected elements */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #4ecdc4;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff6b6b;
+  stroke-width: 3;
+}
+
+
+
+================================================
+FILE: frontend/src/ui.js
+================================================
+// ui.js
+// Displays the drag-and-drop UI
+// --------------------------------------------------
+
+import { useRef, useCallback } from "react";
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  ReactFlowProvider,
+  MarkerType,
+} from "@xyflow/react";
+import { InputNode } from "./nodes/inputNode";
+import { LLMNode } from "./nodes/llmNode";
+import { OutputNode } from "./nodes/outputNode";
+import { TextNode } from "./nodes/textNode";
+import { MathNode } from "./nodes/mathNode";
+import { FilterNode } from "./nodes/filterNode";
+import { APINode } from "./nodes/apiNode";
+import { TimerNode } from "./nodes/timerNode";
+import { ConditionalNode } from "./nodes/conditionalNode";
+import { SubmitButton } from "./submit";
+
+import "@xyflow/react/dist/style.css";
+import "./ui.css";
+import "./edges.css";
+
+const gridSize = 20;
+const proOptions = { hideAttribution: true };
+const nodeTypes = {
+  customInput: InputNode,
+  llm: LLMNode,
+  customOutput: OutputNode,
+  text: TextNode,
+  math: MathNode,
+  filter: FilterNode,
+  api: APINode,
+  timer: TimerNode,
+  conditional: ConditionalNode,
+};
+
+// Simple node ID counter - no external store needed
+let nodeIdCounter = {
+  customInput: 0,
+  llm: 0,
+  customOutput: 0,
+  text: 0,
+  math: 0,
+  filter: 0,
+  api: 0,
+  timer: 0,
+  conditional: 0,
+};
+
+const FlowComponent = () => {
+  const reactFlowWrapper = useRef(null);
+
+  // Use React Flow's built-in state management only
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Simple local function for generating node IDs
+  const getNodeID = (type) => {
+    nodeIdCounter[type] = (nodeIdCounter[type] || 0) + 1;
+    return `${type}-${nodeIdCounter[type]}`;
+  };
+
+  const getInitNodeData = (nodeID, type) => {
+    let nodeData = { id: nodeID, nodeType: `${type}` };
+    return nodeData;
+  };
+
+  const onConnect = useCallback(
+    (params) => {
+      // Add directional arrow marker to all new connections
+      const newEdge = {
+        ...params,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: "#4ecdc4",
+        },
+        style: {
+          stroke: "#4ecdc4",
+          strokeWidth: 2,
+        },
+      };
+      setEdges((eds) => addEdge(newEdge, eds));
+    },
+    [setEdges]
+  );
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      if (event?.dataTransfer?.getData("application/reactflow")) {
+        const appData = JSON.parse(
+          event.dataTransfer.getData("application/reactflow")
+        );
+        const type = appData?.nodeType;
+
+        // check if the dropped element is valid
+        if (typeof type === "undefined" || !type) {
+          return;
+        }
+
+        // Simple coordinate calculation without needing the React Flow instance
+        const position = {
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        };
+
+        const nodeID = getNodeID(type);
+        const newNode = {
+          id: nodeID,
+          type,
+          position,
+          data: getInitNodeData(nodeID, type),
+        };
+
+        setNodes((nds) => nds.concat(newNode));
+      }
+    },
+    [setNodes]
+  );
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  return (
+    <>
+      <div
+        ref={reactFlowWrapper}
+        className="react-flow-wrapper"
+        style={{ width: "100vw", height: "100vh", position: "relative" }}
+      >
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          nodeTypes={nodeTypes}
+          proOptions={proOptions}
+          snapGrid={[gridSize, gridSize]}
+          connectionLineType="smoothstep"
+          defaultEdgeOptions={{
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: "#4ecdc4",
+            },
+            style: {
+              stroke: "#4ecdc4",
+              strokeWidth: 2,
+            },
+          }}
+        >
+          <Background color="#aaa" gap={gridSize} />
+          <Controls position="bottom-left" />
+          <MiniMap
+            position="top-left"
+            nodeColor={(n) => {
+              if (n.type === "customInput") return "#667eea";
+              if (n.type === "customOutput") return "#f093fb";
+              if (n.type === "text") return "#43e97b";
+              if (n.type === "llm") return "#4facfe";
+              return "#ccc";
+            }}
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              border: "2px solid #4a5568",
+              borderRadius: "8px",
+            }}
+          />
+        </ReactFlow>
+
+        {/* Submit button positioned as overlay */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            right: "20px",
+            zIndex: 1000,
+          }}
+        >
+          <SubmitButton nodes={nodes} edges={edges} />
+        </div>
+      </div>
+    </>
+  );
+};
+
+export const PipelineUI = () => {
+  return (
+    <ReactFlowProvider>
+      <FlowComponent />
+    </ReactFlowProvider>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/components/BaseNode.css
+================================================
+/* BaseNode.css */
+/* Styling for the base node component */
+
+.base-node {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid #4a5568;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-width: 220px;
+  width: auto;
+  height: auto;
+}
+
+.base-node:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.base-node::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #4ecdc4,
+    #45b7d1,
+    #96ceb4,
+    #ffeaa7
+  );
+  background-size: 300% 300%;
+  animation: gradient 3s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.node-header {
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.node-title {
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.node-toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.node-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.node-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.node-content {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 0 0 10px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 60px;
+}
+
+/* Preview mode for minimized nodes */
+.node-content-preview {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 0 0 10px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 40px;
+}
+
+.node-field-preview {
+  margin-bottom: 8px;
+}
+
+.preview-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+.preview-children {
+  margin-top: 8px;
+  opacity: 0.7;
+  transform: scale(0.9);
+  transition: all 0.2s ease;
+}
+
+.node-field {
+  margin-bottom: 16px;
+}
+
+.node-field:last-child {
+  margin-bottom: 0;
+}
+
+.node-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.3px;
+}
+
+.node-input,
+.node-textarea,
+.node-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2d3748;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 40px;
+  box-sizing: border-box;
+}
+
+.node-input::placeholder,
+.node-textarea::placeholder {
+  color: rgba(45, 55, 72, 0.6);
+  font-weight: 400;
+}
+
+.node-input:focus,
+.node-textarea:focus,
+.node-select:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.node-input:hover,
+.node-textarea:hover,
+.node-select:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.node-textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+
+.node-select {
+  cursor: pointer;
+  min-height: 42px;
+}
+
+.node-select option {
+  background: #ffffff;
+  color: #2d3748;
+  padding: 8px 12px;
+}
+
+/* Handle styling - Enhanced visibility */
+.react-flow__handle {
+  width: 18px !important;
+  height: 18px !important;
+  border: 4px solid #fff !important;
+  background: #4ecdc4 !important;
+  transition: all 0.2s ease !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+.react-flow__handle:hover {
+  background: #38d9a9 !important;
+  transform: scale(1.4) !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.react-flow__handle-connecting {
+  background: #ff6b6b !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.4) !important;
+}
+
+.react-flow__handle-valid {
+  background: #51cf66 !important;
+  box-shadow: 0 0 0 4px rgba(81, 207, 102, 0.4) !important;
+}
+
+.react-flow__handle-left {
+  left: -10px !important;
+}
+
+.react-flow__handle-right {
+  right: -10px !important;
+}
+
+.react-flow__handle-top {
+  top: -10px !important;
+}
+
+.react-flow__handle-bottom {
+  bottom: -10px !important;
+}
+
+/* Variable handle specific styling */
+.variable-handle {
+  width: 18px !important;
+  height: 18px !important;
+  border: 3px solid #fff !important;
+  background: #4ecdc4 !important;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3) !important;
+  animation: pulse-subtle 2s infinite !important;
+}
+
+.variable-handle:hover {
+  background: #38d9a9 !important;
+  transform: scale(1.4) !important;
+  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.5) !important;
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.5);
+  }
+}
+
+/* Node type specific styles */
+.input-node {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.output-node {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.llm-node {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.text-node {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.math-node {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.filter-node {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.api-node {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.timer-node {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.conditional-node {
+  background: linear-gradient(135deg, #ff8a80 0%, #ea80fc 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .base-node {
+    min-width: 180px;
+  }
+
+  .node-input,
+  .node-textarea,
+  .node-select {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .node-label {
+    font-size: 11px;
+  }
+
+  .node-content {
+    padding: 10px;
+  }
+
+  .node-header {
+    padding: 8px 12px;
+  }
+}
+
+/* Enhanced focus and interaction states */
+.node-field {
+  position: relative;
+}
+
+.node-field:hover .node-label {
+  color: #4ecdc4;
+  transition: color 0.2s ease;
+}
+
+/* Better visual separation */
+.node-field + .node-field {
+  margin-top: 14px;
+}
+
+/* Improved accessibility */
+.node-input:focus,
+.node-textarea:focus,
+.node-select:focus {
+  position: relative;
+  z-index: 10;
+}
+
+/* Loading state for form elements */
+.node-input:disabled,
+.node-textarea:disabled,
+.node-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+
+
+================================================
+FILE: frontend/src/components/BaseNode.js
+================================================
+// BaseNode.js
+// Abstract base component for all nodes to eliminate code duplication
+
+import React, { useState, useMemo, useCallback } from "react";
+import { Handle } from "@xyflow/react";
+import "./BaseNode.css";
+
+export const BaseNode = ({
+  id,
+  data,
+  title,
+  fields = [],
+  handles = [],
+  children,
+  dynamicHandles = [],
+  className = "",
+  minWidth = 220,
+  minHeight = 100,
+  isConnectable = true,
+}) => {
+  // Create state for all field values
+  const [fieldValues, setFieldValues] = useState(() => {
+    const initialValues = {};
+    fields.forEach((field) => {
+      initialValues[field.name] =
+        data?.[field.name] || field.defaultValue || "";
+    });
+    return initialValues;
+  });
+
+  // State for minimize/maximize functionality
+  const [isMinimized, setIsMinimized] = useState(data?.isMinimized || false);
+
+  // Handle minimize/maximize toggle
+  const toggleMinimize = useCallback(
+    (e) => {
+      e.stopPropagation();
+      const newMinimized = !isMinimized;
+      setIsMinimized(newMinimized);
+      if (data) {
+        data.isMinimized = newMinimized;
+      }
+    },
+    [isMinimized, data]
+  );
+
+  // Handle field changes
+  const handleFieldChange = useCallback(
+    (fieldName, value) => {
+      setFieldValues((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
+
+      // Update the data object directly for ReactFlow instead of using store
+      if (data) {
+        data[fieldName] = value;
+      }
+
+      // Call custom onChange if provided
+      const field = fields.find((f) => f.name === fieldName);
+      if (field?.onChange) {
+        field.onChange(value, fieldValues);
+      }
+    },
+    [fields, fieldValues, data]
+  );
+
+  // Calculate dynamic size based on content
+  const dynamicStyle = useMemo(() => {
+    let width = minWidth;
+    let height = minHeight;
+
+    // If minimized, use compact dimensions but keep it readable
+    if (isMinimized) {
+      return {
+        width: Math.max(200, minWidth * 0.9),
+        height: fields.length > 0 ? 80 : 60,
+        transition: "all 0.3s ease",
+      };
+    }
+
+    // Calculate minimum width based on fields and content
+    let contentBasedWidth = minWidth;
+
+    fields.forEach((field) => {
+      // Account for label text length
+      const labelLength = field.label ? field.label.length : 0;
+      const labelWidth = Math.max(80, labelLength * 8 + 40);
+
+      if (field.type === "textarea" || field.type === "text") {
+        const value = fieldValues[field.name] || field.placeholder || "";
+
+        if (field.type === "textarea") {
+          const lines = Math.max(2, value.split("\n").length);
+          height = Math.max(height, minHeight + (lines - 1) * 25 + 20);
+
+          // For textarea, consider the longest line
+          const longestLine = value
+            .split("\n")
+            .reduce((max, line) => (line.length > max ? line.length : max), 0);
+          const textWidth = Math.max(150, Math.min(350, longestLine * 8 + 60));
+          contentBasedWidth = Math.max(
+            contentBasedWidth,
+            textWidth,
+            labelWidth
+          );
+        } else {
+          // For text inputs, ensure they can display content properly
+          const textLength = Math.max(
+            value.length,
+            field.placeholder ? field.placeholder.length : 0
+          );
+          const textWidth = Math.max(180, Math.min(320, textLength * 8 + 60));
+          contentBasedWidth = Math.max(
+            contentBasedWidth,
+            textWidth,
+            labelWidth
+          );
+        }
+      } else if (field.type === "select") {
+        // For selects, consider option text lengths
+        const maxOptionLength = field.options
+          ? field.options.reduce(
+              (max, opt) => (opt.label.length > max ? opt.label.length : max),
+              0
+            )
+          : 0;
+        const selectWidth = Math.max(
+          160,
+          Math.min(280, maxOptionLength * 8 + 80)
+        );
+        contentBasedWidth = Math.max(
+          contentBasedWidth,
+          selectWidth,
+          labelWidth
+        );
+      } else {
+        contentBasedWidth = Math.max(contentBasedWidth, labelWidth);
+      }
+    });
+
+    width = Math.max(width, contentBasedWidth);
+
+    // Add extra height for each field
+    const fieldCount = fields.length;
+    height = Math.max(height, minHeight + fieldCount * 50 + 20);
+
+    return { width, height, transition: "all 0.3s ease" };
+  }, [fieldValues, fields, minWidth, minHeight, isMinimized]);
+
+  // Render field based on type
+  const renderField = (field) => {
+    const value = fieldValues[field.name] || "";
+
+    switch (field.type) {
+      case "text":
+        return (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            className="node-input"
+          />
+        );
+
+      case "textarea":
+        return (
+          <textarea
+            value={value}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            className="node-textarea"
+            rows={Math.max(2, value.split("\n").length)}
+          />
+        );
+
+      case "select":
+        return (
+          <select
+            value={value}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            className="node-select"
+          >
+            {field.options?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+
+      case "number":
+        return (
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            min={field.min}
+            max={field.max}
+            step={field.step}
+            className="node-input"
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`base-node ${className}`} style={dynamicStyle}>
+      {/* Render static handles */}
+      {handles.map((handle, index) => (
+        <Handle
+          key={`${handle.type}-${handle.position}-${index}`}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id || `${id}-${handle.type}-${index}`}
+          style={handle.style}
+          className={handle.className}
+          isConnectable={isConnectable}
+        />
+      ))}
+
+      {/* Render dynamic handles */}
+      {dynamicHandles.map((handle, index) => (
+        <Handle
+          key={`dynamic-${handle.id}-${index}`}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id}
+          style={handle.style}
+          className={handle.className}
+          isConnectable={isConnectable}
+        />
+      ))}
+
+      {/* Node header */}
+      <div className="node-header">
+        <span className="node-title">{title}</span>
+        <button
+          className="node-toggle-btn"
+          onClick={toggleMinimize}
+          title={isMinimized ? "Expand node" : "Minimize node"}
+        >
+          {isMinimized ? "â¬†" : "â¬‡"}
+        </button>
+      </div>
+
+      {/* Node content - show preview when minimized, full content when expanded */}
+      {isMinimized ? (
+        <div className="node-content-preview">
+          {fields.length > 0 && (
+            <div className="node-field-preview">
+              <span className="preview-text">
+                {fields.length} field{fields.length !== 1 ? "s" : ""} â€¢ Click â¬†
+                to expand
+              </span>
+            </div>
+          )}
+          {children && <div className="preview-children">{children}</div>}
+        </div>
+      ) : (
+        <div className="node-content">
+          {fields.map((field) => (
+            <div key={field.name} className="node-field">
+              {field.label && (
+                <label className="node-label">{field.label}:</label>
+              )}
+              {renderField(field)}
+            </div>
+          ))}
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/apiNode.js
+================================================
+// apiNode.js
+// Demonstrates API integration node
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const APINode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "method",
+      type: "select",
+      label: "HTTP Method",
+      defaultValue: "GET",
+      options: [
+        { value: "GET", label: "GET" },
+        { value: "POST", label: "POST" },
+        { value: "PUT", label: "PUT" },
+        { value: "DELETE", label: "DELETE" },
+        { value: "PATCH", label: "PATCH" },
+      ],
+    },
+    {
+      name: "url",
+      type: "text",
+      label: "URL",
+      defaultValue: "https://api.example.com",
+      placeholder: "https://api.example.com/endpoint",
+    },
+    {
+      name: "headers",
+      type: "textarea",
+      label: "Headers (JSON)",
+      defaultValue: '{"Content-Type": "application/json"}',
+      placeholder: "Enter headers as JSON object",
+    },
+    {
+      name: "timeout",
+      type: "number",
+      label: "Timeout (seconds)",
+      defaultValue: 30,
+      min: 1,
+      max: 300,
+      step: 1,
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-payload`,
+      style: { top: "30%" },
+    },
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-trigger`,
+      style: { top: "70%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-response`,
+      style: { top: "30%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-error`,
+      style: { top: "70%" },
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="API"
+      fields={fields}
+      handles={handles}
+      className="api-node"
+      minWidth={280}
+      minHeight={220}
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/conditionalNode.js
+================================================
+// conditionalNode.js
+// Demonstrates conditional logic node
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const ConditionalNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "condition",
+      type: "select",
+      label: "Condition",
+      defaultValue: "equals",
+      options: [
+        { value: "equals", label: "Equals (==)" },
+        { value: "notEquals", label: "Not Equals (!=)" },
+        { value: "greater", label: "Greater Than (>)" },
+        { value: "less", label: "Less Than (<)" },
+        { value: "greaterEqual", label: "Greater or Equal (>=)" },
+        { value: "lessEqual", label: "Less or Equal (<=)" },
+        { value: "contains", label: "Contains" },
+        { value: "isEmpty", label: "Is Empty" },
+      ],
+    },
+    {
+      name: "compareValue",
+      type: "text",
+      label: "Compare Value",
+      defaultValue: "",
+      placeholder: "Value to compare against",
+    },
+    {
+      name: "dataType",
+      type: "select",
+      label: "Data Type",
+      defaultValue: "string",
+      options: [
+        { value: "string", label: "String" },
+        { value: "number", label: "Number" },
+        { value: "boolean", label: "Boolean" },
+        { value: "date", label: "Date" },
+      ],
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-input`,
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-true`,
+      style: { top: "30%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-false`,
+      style: { top: "70%" },
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="Conditional"
+      fields={fields}
+      handles={handles}
+      className="conditional-node"
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/filterNode.js
+================================================
+// filterNode.js
+// Demonstrates data filtering node
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const FilterNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "filterType",
+      type: "select",
+      label: "Filter Type",
+      defaultValue: "contains",
+      options: [
+        { value: "contains", label: "Contains" },
+        { value: "startsWith", label: "Starts With" },
+        { value: "endsWith", label: "Ends With" },
+        { value: "equals", label: "Equals" },
+        { value: "regex", label: "Regular Expression" },
+      ],
+    },
+    {
+      name: "filterValue",
+      type: "text",
+      label: "Filter Value",
+      defaultValue: "",
+      placeholder: "Enter filter criteria",
+    },
+    {
+      name: "caseSensitive",
+      type: "select",
+      label: "Case Sensitive",
+      defaultValue: "false",
+      options: [
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ],
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-data`,
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-filtered`,
+      style: { top: "40%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-excluded`,
+      style: { top: "70%" },
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="Filter"
+      fields={fields}
+      handles={handles}
+      className="filter-node"
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/inputNode.js
+================================================
+// inputNode.js
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const InputNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "inputName",
+      type: "text",
+      label: "Name",
+      defaultValue: id.replace("customInput-", "input_"),
+      placeholder: "Enter input name",
+    },
+    {
+      name: "inputType",
+      type: "select",
+      label: "Type",
+      defaultValue: "Text",
+      options: [
+        { value: "Text", label: "Text" },
+        { value: "File", label: "File" },
+      ],
+    },
+  ];
+
+  const handles = [
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-value`,
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="INPUT"
+      fields={fields}
+      handles={handles}
+      className="input-node"
+      minWidth={220}
+      minHeight={140}
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/llmNode.js
+================================================
+// llmNode.js
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const LLMNode = ({ id, data }) => {
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-system`,
+      style: { top: "33%" },
+    },
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-prompt`,
+      style: { top: "67%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-response`,
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="LLM"
+      handles={handles}
+      className="llm-node"
+      minWidth={200}
+      minHeight={120}
+    >
+      <div
+        style={{
+          padding: "12px 0",
+          fontSize: "13px",
+          color: "rgba(255, 255, 255, 0.9)",
+          textAlign: "center",
+          fontWeight: "500",
+        }}
+      >
+        Large Language Model
+      </div>
+    </BaseNode>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/mathNode.js
+================================================
+// mathNode.js
+// Demonstrates mathematical operations node
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const MathNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "operation",
+      type: "select",
+      label: "Operation",
+      defaultValue: "add",
+      options: [
+        { value: "add", label: "Addition (+)" },
+        { value: "subtract", label: "Subtraction (-)" },
+        { value: "multiply", label: "Multiplication (Ã—)" },
+        { value: "divide", label: "Division (Ã·)" },
+        { value: "power", label: "Power (^)" },
+        { value: "sqrt", label: "Square Root (âˆš)" },
+      ],
+    },
+    {
+      name: "precision",
+      type: "number",
+      label: "Decimal Places",
+      defaultValue: 2,
+      min: 0,
+      max: 10,
+      step: 1,
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-input1`,
+      style: { top: "30%" },
+    },
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-input2`,
+      style: { top: "70%" },
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-result`,
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="MATH"
+      fields={fields}
+      handles={handles}
+      className="math-node"
+      minWidth={240}
+      minHeight={160}
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/outputNode.js
+================================================
+// outputNode.js
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const OutputNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "outputName",
+      type: "text",
+      label: "Name",
+      defaultValue: id.replace("customOutput-", "output_"),
+      placeholder: "Enter output name",
+    },
+    {
+      name: "outputType",
+      type: "select",
+      label: "Type",
+      defaultValue: "Text",
+      options: [
+        { value: "Text", label: "Text" },
+        { value: "Image", label: "Image" },
+      ],
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-value`,
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="OUTPUT"
+      fields={fields}
+      handles={handles}
+      className="output-node"
+      minWidth={220}
+      minHeight={140}
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/textNode.js
+================================================
+// textNode.js
+
+import { useMemo, useCallback } from "react";
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const TextNode = ({ id, data, isConnectable }) => {
+  // Extract variables from text using regex
+  const extractVariables = useCallback((textContent) => {
+    const variableRegex = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
+    const variables = [];
+    let match;
+
+    while ((match = variableRegex.exec(textContent)) !== null) {
+      const variableName = match[1].trim();
+      if (!variables.includes(variableName)) {
+        variables.push(variableName);
+      }
+    }
+
+    return variables;
+  }, []);
+
+  // Custom onChange handler for text field to update variables
+  const handleTextChange = useCallback(
+    (value, fieldValues) => {
+      // Store the current text in data
+      if (data) {
+        data.text = value;
+        data.variables = extractVariables(value);
+      }
+    },
+    [data, extractVariables]
+  );
+
+  // Define fields for BaseNode
+  const fields = [
+    {
+      name: "text",
+      type: "textarea",
+      label: "Text",
+      defaultValue: data?.text || "{{input}}",
+      placeholder: "Enter text with variables like {{input}}",
+      onChange: handleTextChange,
+    },
+  ];
+
+  // Static handles
+  const handles = [
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-output`,
+    },
+  ];
+
+  // Get current text value
+  const currentText = data?.text || "{{input}}";
+  const variables = useMemo(
+    () => extractVariables(currentText),
+    [currentText, extractVariables]
+  );
+
+  // Create dynamic handles for detected variables
+  const dynamicHandles = useMemo(() => {
+    return variables.map((variable, index) => ({
+      type: "target",
+      position: Position.Left,
+      id: `${id}-${variable}`,
+      style: {
+        top: `${30 + index * 35}px`,
+        background: "#4ecdc4",
+        border: "3px solid #fff",
+        width: "18px",
+        height: "18px",
+      },
+      className: "variable-handle",
+      label: variable, // Add variable name as label
+    }));
+  }, [variables, id]);
+
+  return (
+    <>
+      <BaseNode
+        id={id}
+        data={data}
+        title="TEXT"
+        fields={fields}
+        handles={handles}
+        dynamicHandles={dynamicHandles}
+        className="text-node"
+        minWidth={280}
+        minHeight={150}
+        isConnectable={isConnectable}
+      >
+        {/* Show detected variables */}
+        {variables.length > 0 && (
+          <div
+            style={{
+              fontSize: "11px",
+              color: "#2d3748",
+              marginTop: "10px",
+              padding: "6px 10px",
+              background: "rgba(255, 255, 255, 0.9)",
+              borderRadius: "6px",
+              border: "1px solid rgba(78, 205, 196, 0.5)",
+              fontWeight: "600",
+            }}
+          >
+            <strong style={{ color: "#4ecdc4" }}>Variables:</strong>{" "}
+            {variables.map((v) => `{{${v}}}`).join(", ")}
+          </div>
+        )}
+      </BaseNode>
+
+      {/* Variable labels positioned next to handles */}
+      {variables.map((variable, index) => (
+        <div
+          key={`label-${variable}-${index}`}
+          style={{
+            position: "absolute",
+            left: "-70px",
+            top: `${30 + index * 35 - 12}px`,
+            fontSize: "11px",
+            color: "#ffffff",
+            fontWeight: "700",
+            background: "linear-gradient(135deg, #4ecdc4 0%, #38d9a9 100%)",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: 1000,
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          {variable}
+        </div>
+      ))}
+    </>
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/nodes/timerNode.js
+================================================
+// timerNode.js
+// Demonstrates timer/delay node
+
+import { Position } from "@xyflow/react";
+import { BaseNode } from "../components/BaseNode";
+
+export const TimerNode = ({ id, data }) => {
+  const fields = [
+    {
+      name: "delay",
+      type: "number",
+      label: "Delay",
+      defaultValue: 5,
+      min: 0.1,
+      max: 3600,
+      step: 0.1,
+    },
+    {
+      name: "unit",
+      type: "select",
+      label: "Time Unit",
+      defaultValue: "seconds",
+      options: [
+        { value: "milliseconds", label: "Milliseconds" },
+        { value: "seconds", label: "Seconds" },
+        { value: "minutes", label: "Minutes" },
+        { value: "hours", label: "Hours" },
+      ],
+    },
+    {
+      name: "repeat",
+      type: "select",
+      label: "Repeat",
+      defaultValue: "once",
+      options: [
+        { value: "once", label: "Once" },
+        { value: "interval", label: "Interval" },
+        { value: "cron", label: "Cron Schedule" },
+      ],
+    },
+  ];
+
+  const handles = [
+    {
+      type: "target",
+      position: Position.Left,
+      id: `${id}-trigger`,
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-output`,
+    },
+  ];
+
+  return (
+    <BaseNode
+      id={id}
+      data={data}
+      title="Timer"
+      fields={fields}
+      handles={handles}
+      className="timer-node"
+    />
+  );
+};
+
+
+
+================================================
+FILE: frontend/src/styles/nodes.css
+================================================
+[Empty file]
 

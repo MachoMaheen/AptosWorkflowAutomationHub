@@ -1,0 +1,161 @@
+/* Enhanced App.css with Aptos integration styles */
+
+.app {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Overlay toolbar positioning */
+.toolbar-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+/* Event Monitor overlay positioning */
+.event-monitor-overlay {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Aptos-specific node styles */
+.aptos-event-trigger-node {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  border: 2px solid #ff3838;
+}
+
+.aptos-event-trigger-node::before {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #ee5a24,
+    #ff9ff3,
+    #54a0ff,
+    #5f27cd
+  );
+}
+
+.aptos-action-node {
+  background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%);
+  border: 2px solid #0abde3;
+}
+
+.aptos-action-node::before {
+  background: linear-gradient(
+    90deg,
+    #00d2d3,
+    #54a0ff,
+    #5f27cd,
+    #ff9ff3,
+    #ff6b6b
+  );
+}
+
+.wallet-connection-node {
+  background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+  border: 2px solid #ff9ff3;
+}
+
+.wallet-connection-node::before {
+  background: linear-gradient(
+    90deg,
+    #feca57,
+    #ff9ff3,
+    #54a0ff,
+    #5f27cd,
+    #00d2d3
+  );
+}
+
+/* Wallet connection status indicators */
+.wallet-status-connected {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.wallet-status-disconnected {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Enhanced handle styles for Aptos nodes */
+.aptos-handle {
+  border: 4px solid #fff !important;
+  background: linear-gradient(135deg, #ff6b6b 0%, #54a0ff 100%) !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  animation: aptos-pulse 2s infinite !important;
+}
+
+@keyframes aptos-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.6);
+  }
+}
+
+/* Global scrollbar styling for monitors */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .toolbar-overlay {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    min-width: auto;
+  }
+
+  .event-monitor-overlay {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-overlay {
+    padding: 12px;
+  }
+
+  .event-monitor-overlay {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+  }
+}

@@ -1,0 +1,81 @@
+/* ui.css */
+/* Styling for the UI component */
+
+.react-flow-wrapper {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* ReactFlow customizations */
+.react-flow {
+  background: transparent;
+}
+
+.react-flow__background {
+  background: radial-gradient(
+    circle at 1px 1px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 0
+  );
+  background-size: 20px 20px;
+}
+
+.react-flow__controls {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__controls button {
+  border: none;
+  background: transparent;
+  color: #4a5568;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls button:hover {
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+}
+
+.react-flow__minimap {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke: #4ecdc4;
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.react-flow__connection-line {
+  stroke: #4ecdc4;
+  stroke-width: 2;
+  stroke-dasharray: 5;
+}
+
+/* Selected elements */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #4ecdc4;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff6b6b;
+  stroke-width: 3;
+}

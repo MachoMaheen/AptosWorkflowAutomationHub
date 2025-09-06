@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "aptos-workflow-automation-hub",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,7 +11,14 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    "@aptos-labs/wallet-adapter-react": "^3.0.0",
+    "@aptos-labs/wallet-adapter-core": "^4.0.0",
+    "@aptos-labs/ts-sdk": "^1.8.0",
+    "petra-plugin-wallet-adapter": "^0.4.5",
+    "axios": "^1.6.0",
+    "react-hot-toast": "^2.4.1",
+    "lucide-react": "^0.292.0"
   },
   "scripts": {
     "start": "react-scripts start",
