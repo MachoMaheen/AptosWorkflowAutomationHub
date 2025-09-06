@@ -70,12 +70,12 @@ export const useStore = create((set, get) => ({
   },
   deleteSelectedNodes: (selectedNodeIds) => {
     if (selectedNodeIds.length === 0) return;
-    
+
     set({
       nodes: get().nodes.filter((node) => !selectedNodeIds.includes(node.id)),
       edges: get().edges.filter(
-        (edge) => 
-          !selectedNodeIds.includes(edge.source) && 
+        (edge) =>
+          !selectedNodeIds.includes(edge.source) &&
           !selectedNodeIds.includes(edge.target)
       ),
     });

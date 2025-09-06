@@ -96,23 +96,27 @@ const FlowComponent = () => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       // Only handle Delete key when not typing in an input
-      if (event.key === 'Delete' && !event.target.matches('input, textarea, select')) {
+      if (
+        event.key === "Delete" &&
+        !event.target.matches("input, textarea, select")
+      ) {
         event.preventDefault();
-        
+
         // Get currently selected nodes
-        const selectedNodes = getNodes().filter(node => node.selected);
-        
+        const selectedNodes = getNodes().filter((node) => node.selected);
+
         if (selectedNodes.length > 0) {
-          const selectedNodeIds = selectedNodes.map(node => node.id);
-          
+          const selectedNodeIds = selectedNodes.map((node) => node.id);
+
           // Remove selected nodes and their connected edges
-          setNodes(currentNodes => 
-            currentNodes.filter(node => !selectedNodeIds.includes(node.id))
+          setNodes((currentNodes) =>
+            currentNodes.filter((node) => !selectedNodeIds.includes(node.id))
           );
-          setEdges(currentEdges => 
-            currentEdges.filter(edge => 
-              !selectedNodeIds.includes(edge.source) && 
-              !selectedNodeIds.includes(edge.target)
+          setEdges((currentEdges) =>
+            currentEdges.filter(
+              (edge) =>
+                !selectedNodeIds.includes(edge.source) &&
+                !selectedNodeIds.includes(edge.target)
             )
           );
         }
@@ -120,11 +124,11 @@ const FlowComponent = () => {
     };
 
     // Add event listener to the document
-    document.addEventListener('keydown', handleKeyDown);
-    
+    document.addEventListener("keydown", handleKeyDown);
+
     // Cleanup
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [getNodes, setNodes, setEdges]);
 
@@ -257,7 +261,7 @@ const FlowComponent = () => {
           style={{
             position: "absolute",
             bottom: "20px",
-            right: "20px",
+            left: "50px",
             zIndex: 1000,
           }}
         >

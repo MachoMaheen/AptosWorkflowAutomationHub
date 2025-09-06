@@ -102,7 +102,10 @@ export const EventMonitor = () => {
         margin: "10px",
         boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
         border: "1px solid rgba(255, 255, 255, 0.2)",
-        maxWidth: "400px",
+        maxWidth: "380px",
+        minWidth: "300px",
+        position: "relative",
+        zIndex: 999,
       }}
     >
       <div
