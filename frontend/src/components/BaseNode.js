@@ -82,43 +82,44 @@ export const BaseNode = ({
 
     // Calculate minimum width based on fields and content
     let contentBasedWidth = minWidth;
+    let contentBasedHeight = minHeight;
+
+    // Base height for header
+    contentBasedHeight += 35;
 
     fields.forEach((field) => {
       // Account for label text length
       const labelLength = field.label ? field.label.length : 0;
       const labelWidth = Math.max(80, labelLength * 8 + 40);
 
-      if (field.type === "textarea" || field.type === "text") {
+      // Height calculation per field type
+      let fieldHeight = 0;
+
+      if (field.type === "textarea") {
         const value = fieldValues[field.name] || field.placeholder || "";
+        const lines = Math.max(2, value.split("\n").length);
+        fieldHeight = 20 + lines * 18 + 5; // Label + textarea + margin
 
-        if (field.type === "textarea") {
-          const lines = Math.max(2, value.split("\n").length);
-          height = Math.max(height, minHeight + (lines - 1) * 25 + 20);
+        // For textarea, consider the longest line
+        const longestLine = value
+          .split("\n")
+          .reduce((max, line) => (line.length > max ? line.length : max), 0);
+        const textWidth = Math.max(200, Math.min(400, longestLine * 8 + 60));
+        contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
+      } else if (field.type === "text" || field.type === "number") {
+        fieldHeight = 45; // Label + input + margin
 
-          // For textarea, consider the longest line
-          const longestLine = value
-            .split("\n")
-            .reduce((max, line) => (line.length > max ? line.length : max), 0);
-          const textWidth = Math.max(150, Math.min(350, longestLine * 8 + 60));
-          contentBasedWidth = Math.max(
-            contentBasedWidth,
-            textWidth,
-            labelWidth
-          );
-        } else {
-          // For text inputs, ensure they can display content properly
-          const textLength = Math.max(
-            value.length,
-            field.placeholder ? field.placeholder.length : 0
-          );
-          const textWidth = Math.max(180, Math.min(320, textLength * 8 + 60));
-          contentBasedWidth = Math.max(
-            contentBasedWidth,
-            textWidth,
-            labelWidth
-          );
-        }
+        // For text inputs, ensure they can display content properly
+        const value = fieldValues[field.name] || field.placeholder || "";
+        const textLength = Math.max(
+          value.length,
+          field.placeholder ? field.placeholder.length : 0
+        );
+        const textWidth = Math.max(200, Math.min(350, textLength * 8 + 60));
+        contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
       } else if (field.type === "select") {
+        fieldHeight = 45; // Label + select + margin
+
         // For selects, consider option text lengths
         const maxOptionLength = field.options
           ? field.options.reduce(
@@ -127,8 +128,8 @@ export const BaseNode = ({
             )
           : 0;
         const selectWidth = Math.max(
-          160,
-          Math.min(280, maxOptionLength * 8 + 80)
+          200,
+          Math.min(350, maxOptionLength * 8 + 80)
         );
         contentBasedWidth = Math.max(
           contentBasedWidth,
@@ -136,15 +137,20 @@ export const BaseNode = ({
           labelWidth
         );
       } else {
+        fieldHeight = 35; // Default field height
         contentBasedWidth = Math.max(contentBasedWidth, labelWidth);
       }
+
+      contentBasedHeight += fieldHeight;
     });
 
-    width = Math.max(width, contentBasedWidth);
+    // Add minimal extra space for children content (like execute buttons)
+    if (fields.length > 0) {
+      contentBasedHeight += 10; // Further reduced to 10
+    }
 
-    // Add extra height for each field
-    const fieldCount = fields.length;
-    height = Math.max(height, minHeight + fieldCount * 50 + 20);
+    width = Math.max(width, contentBasedWidth);
+    height = Math.max(height, contentBasedHeight);
 
     return { width, height, transition: "all 0.3s ease" };
   }, [fieldValues, fields, minWidth, minHeight, isMinimized]);

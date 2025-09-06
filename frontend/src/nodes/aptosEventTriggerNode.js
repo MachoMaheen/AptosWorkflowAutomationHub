@@ -73,8 +73,8 @@ export const AptosEventTriggerNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="aptos-event-trigger-node"
-      minWidth={320}
-      minHeight={280}
+      minWidth={360}
+      minHeight={300}
     >
       <div
         style={{

@@ -61,6 +61,8 @@ export const TimerNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="timer-node"
+      minWidth={280}
+      minHeight={170}
     />
   );
 };

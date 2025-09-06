@@ -40,8 +40,8 @@ export const InputNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="input-node"
-      minWidth={220}
-      minHeight={140}
+      minWidth={250}
+      minHeight={130}
     />
   );
 };

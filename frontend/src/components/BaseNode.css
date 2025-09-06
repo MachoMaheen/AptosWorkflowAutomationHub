@@ -97,12 +97,14 @@
 }
 
 .node-content {
-  padding: 16px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 0 0 10px 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 60px;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Preview mode for minimized nodes */
@@ -133,18 +135,21 @@
 }
 
 .node-field {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
 }
 
 .node-field:last-child {
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 
 .node-label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.3px;
@@ -154,17 +159,18 @@
 .node-textarea,
 .node-select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.95);
   color: #2d3748;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 40px;
+  min-height: 36px;
   box-sizing: border-box;
+  flex: 1;
 }
 
 .node-input::placeholder,
@@ -197,12 +203,18 @@
   min-height: 60px;
   font-family: inherit;
   line-height: 1.4;
-  padding: 12px 14px;
+  padding: 8px 12px;
 }
 
 .node-select {
   cursor: pointer;
-  min-height: 42px;
+  min-height: 38px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%232d3748' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  padding-right: 32px;
 }
 
 .node-select option {

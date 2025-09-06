@@ -31,8 +31,8 @@ export const LLMNode = ({ id, data }) => {
       title="LLM"
       handles={handles}
       className="llm-node"
-      minWidth={200}
-      minHeight={120}
+      minWidth={240}
+      minHeight={140}
     >
       <div
         style={{

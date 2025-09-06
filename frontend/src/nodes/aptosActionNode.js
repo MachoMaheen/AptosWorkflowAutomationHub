@@ -188,8 +188,8 @@ export const AptosActionNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="aptos-action-node"
-      minWidth={340}
-      minHeight={400}
+      minWidth={380}
+      minHeight={420}
     >
       <div
         style={{

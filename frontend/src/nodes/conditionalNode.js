@@ -71,6 +71,8 @@ export const ConditionalNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="conditional-node"
+      minWidth={280}
+      minHeight={170}
     />
   );
 };

@@ -49,8 +49,8 @@ export const WalletConnectionNode = ({ id, data }) => {
       fields={fields}
       handles={handles}
       className="wallet-connection-node"
-      minWidth={280}
-      minHeight={200}
+      minWidth={320}
+      minHeight={180}
     >
       <div
         style={{
