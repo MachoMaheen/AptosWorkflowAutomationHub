@@ -1,4 +1,4 @@
-// textNode.js
+// textNode.js - ENHANCED WITH DYNAMIC FIELDS & PROPER DATA FLOW
 
 import { useMemo, useCallback } from "react";
 import { Position } from "@xyflow/react";
@@ -38,10 +38,21 @@ export const TextNode = ({ id, data, isConnectable }) => {
     {
       name: "text",
       type: "textarea",
-      label: "Text",
+      label: "Text Template",
       defaultValue: data?.text || "{{input}}",
       placeholder: "Enter text with variables like {{input}}",
       onChange: handleTextChange,
+    },
+    {
+      name: "outputFormat",
+      type: "select",
+      label: "Output Format",
+      defaultValue: "text",
+      options: [
+        { value: "text", label: "Plain Text" },
+        { value: "markdown", label: "Markdown" },
+        { value: "html", label: "HTML" },
+      ],
     },
   ];
 
@@ -51,6 +62,9 @@ export const TextNode = ({ id, data, isConnectable }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-output`,
+      style: { top: "50%" },
+      className: "data-handle",
+      label: "Output",
     },
   ];
 
@@ -69,75 +83,47 @@ export const TextNode = ({ id, data, isConnectable }) => {
       id: `${id}-${variable}`,
       style: {
         top: `${30 + index * 35}px`,
-        background: "#4ecdc4",
-        border: "3px solid #fff",
-        width: "18px",
-        height: "18px",
       },
-      className: "variable-handle",
-      label: variable, // Add variable name as label
+      className: "data-handle",
+      label: variable,
     }));
   }, [variables, id]);
 
   return (
-    <>
-      <BaseNode
-        id={id}
-        data={data}
-        title="TEXT"
-        fields={fields}
-        handles={handles}
-        dynamicHandles={dynamicHandles}
-        className="text-node"
-        minWidth={280}
-        minHeight={150}
-        isConnectable={isConnectable}
-      >
-        {/* Show detected variables */}
-        {variables.length > 0 && (
-          <div
-            style={{
-              fontSize: "11px",
-              color: "#2d3748",
-              marginTop: "10px",
-              padding: "6px 10px",
-              background: "rgba(255, 255, 255, 0.9)",
-              borderRadius: "6px",
-              border: "1px solid rgba(78, 205, 196, 0.5)",
-              fontWeight: "600",
-            }}
-          >
-            <strong style={{ color: "#4ecdc4" }}>Variables:</strong>{" "}
-            {variables.map((v) => `{{${v}}}`).join(", ")}
-          </div>
-        )}
-      </BaseNode>
-
-      {/* Variable labels positioned next to handles */}
-      {variables.map((variable, index) => (
+    <BaseNode
+      id={id}
+      data={data}
+      title="📝 TEXT"
+      fields={fields}
+      handles={handles}
+      dynamicHandles={dynamicHandles}
+      className="text-node"
+      minWidth={300}
+      minHeight={200}
+      isConnectable={isConnectable}
+    >
+      {/* Show detected variables */}
+      {variables.length > 0 && (
         <div
-          key={`label-${variable}-${index}`}
           style={{
-            position: "absolute",
-            left: "-70px",
-            top: `${30 + index * 35 - 12}px`,
             fontSize: "11px",
-            color: "#ffffff",
-            fontWeight: "700",
-            background: "linear-gradient(135deg, #4ecdc4 0%, #38d9a9 100%)",
-            padding: "4px 8px",
-            borderRadius: "4px",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-            zIndex: 1000,
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
-            textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+            color: "#2d3748",
+            marginTop: "10px",
+            padding: "8px 12px",
+            background: "rgba(255, 255, 255, 0.9)",
+            borderRadius: "6px",
+            border: "1px solid rgba(78, 205, 196, 0.5)",
           }}
         >
-          {variable}
+          <strong style={{ color: "#4ecdc4" }}>Variables:</strong>{" "}
+          {variables.map((v) => `{{${v}}}`).join(", ")}
+          <div style={{ marginTop: "4px", fontSize: "10px" }}>
+            <strong>Inputs:</strong> Variable values
+            <br />
+            <strong>Output:</strong> Processed text
+          </div>
         </div>
-      ))}
-    </>
+      )}
+    </BaseNode>
   );
 };

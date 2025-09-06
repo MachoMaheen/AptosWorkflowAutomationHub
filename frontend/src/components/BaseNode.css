@@ -97,14 +97,15 @@
 }
 
 .node-content {
-  padding: 12px;
+  padding: 10px 10px 5px 10px; /* Reduced bottom padding */
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 0 0 10px 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 50px;
+  min-height: 30px; /* Reduced minimum height */
   display: flex;
   flex-direction: column;
+  gap: 4px; /* Further reduced gap between elements */
 }
 
 /* Preview mode for minimized nodes */
@@ -135,21 +136,21 @@
 }
 
 .node-field {
-  margin-bottom: 10px;
-  min-height: 40px;
+  margin-bottom: 4px;
+  min-height: 32px; /* Reduced min-height */
   display: flex;
   flex-direction: column;
 }
 
 .node-field:last-child {
-  margin-bottom: 4px;
+  margin-bottom: 2px; /* Significantly reduced bottom margin */
 }
 
 .node-label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.3px;
@@ -159,16 +160,16 @@
 .node-textarea,
 .node-select {
   width: 100%;
-  padding: 8px 12px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.98);
   color: #2d3748;
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 36px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  min-height: 32px;
   box-sizing: border-box;
   flex: 1;
 }
@@ -200,10 +201,10 @@
 
 .node-textarea {
   resize: vertical;
-  min-height: 60px;
+  min-height: 60px; /* Reduced height */
   font-family: inherit;
   line-height: 1.4;
-  padding: 8px 12px;
+  padding: 6px 10px;
 }
 
 .node-select {
@@ -269,30 +270,88 @@
   bottom: -10px !important;
 }
 
-/* Variable handle specific styling */
-.variable-handle {
-  width: 18px !important;
-  height: 18px !important;
+/* Handle type-specific styling */
+.trigger-handle {
+  background: #ff6b6b !important;
   border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.4) !important;
+}
+
+.data-handle {
   background: #4ecdc4 !important;
-  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3) !important;
-  animation: pulse-subtle 2s infinite !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4) !important;
 }
 
-.variable-handle:hover {
+.success-handle {
+  background: #26de81 !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(38, 222, 129, 0.4) !important;
+}
+
+.error-handle {
+  background: #fc5c65 !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(252, 92, 101, 0.4) !important;
+}
+
+.condition-handle {
+  background: #feca57 !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(254, 202, 87, 0.4) !important;
+}
+
+.metadata-handle {
+  background: #a55eea !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(165, 94, 234, 0.4) !important;
+}
+
+.headers-handle {
+  background: #45aaf2 !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(69, 170, 242, 0.4) !important;
+}
+
+.headers-out-handle {
+  background: #3742fa !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(55, 66, 250, 0.4) !important;
+}
+
+.transaction-handle {
+  background: #ffa726 !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.4) !important;
+}
+
+/* Handle hover effects */
+.trigger-handle:hover {
+  background: #ff5252 !important;
+}
+.data-handle:hover {
   background: #38d9a9 !important;
-  transform: scale(1.4) !important;
-  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.5) !important;
 }
-
-@keyframes pulse-subtle {
-  0%,
-  100% {
-    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.5);
-  }
+.success-handle:hover {
+  background: #20bf6b !important;
+}
+.error-handle:hover {
+  background: #eb3b5a !important;
+}
+.condition-handle:hover {
+  background: #fed330 !important;
+}
+.metadata-handle:hover {
+  background: #9c44dc !important;
+}
+.headers-handle:hover {
+  background: #2e86de !important;
+}
+.headers-out-handle:hover {
+  background: #2f3542 !important;
+}
+.transaction-handle:hover {
+  background: #ff8f00 !important;
 }
 
 /* Node type specific styles */
@@ -370,7 +429,7 @@
 
 /* Better visual separation */
 .node-field + .node-field {
-  margin-top: 14px;
+  margin-top: 5px;
 }
 
 /* Improved accessibility */

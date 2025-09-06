@@ -5,6 +5,40 @@ import React, { useState, useMemo, useCallback } from "react";
 import { Handle } from "@xyflow/react";
 import "./BaseNode.css";
 
+// Handle Label Component
+const HandleLabel = ({ handle, nodeId }) => {
+  if (!handle.label) return null;
+
+  const isTarget = handle.type === "target";
+  const labelStyle = {
+    position: "absolute",
+    fontSize: "9px",
+    fontWeight: "600",
+    color: "#ffffff",
+    background: handle.style?.background || "#4ecdc4",
+    padding: "2px 6px",
+    borderRadius: "3px",
+    whiteSpace: "nowrap",
+    pointerEvents: "none",
+    zIndex: 1000,
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+    // Position based on handle type and position
+    ...(isTarget
+      ? {
+          right: "100%",
+          marginRight: "8px",
+        }
+      : {
+          left: "100%",
+          marginLeft: "8px",
+        }),
+    top: "50%",
+    transform: "translateY(-50%)",
+  };
+
+  return <div style={labelStyle}>{handle.label}</div>;
+};
+
 export const BaseNode = ({
   id,
   data,
@@ -30,6 +64,11 @@ export const BaseNode = ({
 
   // State for minimize/maximize functionality
   const [isMinimized, setIsMinimized] = useState(data?.isMinimized || false);
+
+  // Always show full form by default
+  if (data && data.isMinimized === undefined) {
+    data.isMinimized = false;
+  }
 
   // Handle minimize/maximize toggle
   const toggleMinimize = useCallback(
@@ -92,22 +131,22 @@ export const BaseNode = ({
       const labelLength = field.label ? field.label.length : 0;
       const labelWidth = Math.max(80, labelLength * 8 + 40);
 
-      // Height calculation per field type
+      // Height calculation per field type - Reduced heights for more compactness
       let fieldHeight = 0;
 
       if (field.type === "textarea") {
         const value = fieldValues[field.name] || field.placeholder || "";
-        const lines = Math.max(2, value.split("\n").length);
-        fieldHeight = 20 + lines * 18 + 5; // Label + textarea + margin
+        const lines = Math.max(2, value.split("\n").length); // Reduced minimum lines
+        fieldHeight = 16 + lines * 14 + 2; // Further reduced height for textarea
 
         // For textarea, consider the longest line
         const longestLine = value
           .split("\n")
           .reduce((max, line) => (line.length > max ? line.length : max), 0);
-        const textWidth = Math.max(200, Math.min(400, longestLine * 8 + 60));
+        const textWidth = Math.max(250, Math.min(450, longestLine * 9 + 60)); // Wider textarea
         contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
       } else if (field.type === "text" || field.type === "number") {
-        fieldHeight = 45; // Label + input + margin
+        fieldHeight = 32; // Further reduced height for inputs
 
         // For text inputs, ensure they can display content properly
         const value = fieldValues[field.name] || field.placeholder || "";
@@ -115,10 +154,10 @@ export const BaseNode = ({
           value.length,
           field.placeholder ? field.placeholder.length : 0
         );
-        const textWidth = Math.max(200, Math.min(350, textLength * 8 + 60));
+        const textWidth = Math.max(250, Math.min(400, textLength * 9 + 60)); // Wider inputs
         contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
       } else if (field.type === "select") {
-        fieldHeight = 45; // Label + select + margin
+        fieldHeight = 32; // Further reduced height for selects
 
         // For selects, consider option text lengths
         const maxOptionLength = field.options
@@ -128,29 +167,30 @@ export const BaseNode = ({
             )
           : 0;
         const selectWidth = Math.max(
-          200,
-          Math.min(350, maxOptionLength * 8 + 80)
-        );
+          250,
+          Math.min(400, maxOptionLength * 9 + 80)
+        ); // Wider selects
         contentBasedWidth = Math.max(
           contentBasedWidth,
           selectWidth,
           labelWidth
         );
       } else {
-        fieldHeight = 35; // Default field height
+        fieldHeight = 28; // Further reduced default field height
         contentBasedWidth = Math.max(contentBasedWidth, labelWidth);
       }
 
-      contentBasedHeight += fieldHeight;
+      contentBasedHeight += fieldHeight + 2; // Minimal padding between fields
     });
 
-    // Add minimal extra space for children content (like execute buttons)
-    if (fields.length > 0) {
-      contentBasedHeight += 10; // Further reduced to 10
+    // Add minimal space for children content (like execute buttons)
+    if (fields.length > 0 && children) {
+      contentBasedHeight += 10; // Reduced extra space
     }
 
-    width = Math.max(width, contentBasedWidth);
-    height = Math.max(height, contentBasedHeight);
+    // Ensure we have at least the minimum dimensions
+    width = Math.max(width, contentBasedWidth + 30); // Extra padding on sides
+    height = Math.max(height, contentBasedHeight + 10); // Reduced bottom padding
 
     return { width, height, transition: "all 0.3s ease" };
   }, [fieldValues, fields, minWidth, minHeight, isMinimized]);
@@ -218,30 +258,40 @@ export const BaseNode = ({
 
   return (
     <div className={`base-node ${className}`} style={dynamicStyle}>
-      {/* Render static handles */}
+      {/* Render static handles with labels */}
       {handles.map((handle, index) => (
-        <Handle
-          key={`${handle.type}-${handle.position}-${index}`}
-          type={handle.type}
-          position={handle.position}
-          id={handle.id || `${id}-${handle.type}-${index}`}
-          style={handle.style}
-          className={handle.className}
-          isConnectable={isConnectable}
-        />
+        <div
+          key={`handle-container-${handle.type}-${handle.position}-${index}`}
+          style={{ position: "relative" }}
+        >
+          <Handle
+            type={handle.type}
+            position={handle.position}
+            id={handle.id || `${id}-${handle.type}-${index}`}
+            style={handle.style}
+            className={handle.className}
+            isConnectable={isConnectable}
+          />
+          <HandleLabel handle={handle} nodeId={id} />
+        </div>
       ))}
 
-      {/* Render dynamic handles */}
+      {/* Render dynamic handles with labels */}
       {dynamicHandles.map((handle, index) => (
-        <Handle
-          key={`dynamic-${handle.id}-${index}`}
-          type={handle.type}
-          position={handle.position}
-          id={handle.id}
-          style={handle.style}
-          className={handle.className}
-          isConnectable={isConnectable}
-        />
+        <div
+          key={`dynamic-handle-container-${handle.id}-${index}`}
+          style={{ position: "relative" }}
+        >
+          <Handle
+            type={handle.type}
+            position={handle.position}
+            id={handle.id}
+            style={handle.style}
+            className={handle.className}
+            isConnectable={isConnectable}
+          />
+          <HandleLabel handle={handle} nodeId={id} />
+        </div>
       ))}
 
       {/* Node header */}
