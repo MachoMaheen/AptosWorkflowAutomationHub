@@ -136,7 +136,11 @@ export const ConditionalNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-input`,
-      style: { top: "50%" },
+      style: { 
+        top: "50%",
+        background: "#4ecdc4",
+        border: "3px solid #fff"
+      },
       className: "data-handle",
       label: "Input",
     },
@@ -145,7 +149,11 @@ export const ConditionalNode = ({ id, data }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-true`,
-      style: { top: "30%" },
+      style: { 
+        top: "30%",
+        background: "#2ecc71",
+        border: "3px solid #fff"
+      },
       className: "success-handle",
       label: "True",
     },
@@ -153,7 +161,11 @@ export const ConditionalNode = ({ id, data }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-false`,
-      style: { top: "70%" },
+      style: { 
+        top: "70%",
+        background: "#e74c3c",
+        border: "3px solid #fff"
+      },
       className: "error-handle",
       label: "False",
     },

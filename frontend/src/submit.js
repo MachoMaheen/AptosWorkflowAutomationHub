@@ -108,10 +108,37 @@ export const SubmitButton = ({ nodes, edges }) => {
       }
 
       const workflowResult = await workflowResponse.json();
-      console.log("Workflow started:", workflowResult);
+      console.log("Enhanced workflow started:", workflowResult);
 
       setCurrentWorkflowId(workflowResult.workflow_id);
-      toast.success(`Workflow started! ID: ${workflowResult.workflow_id}`);
+      
+      // Enhanced success message with details
+      const details = [];
+      if (workflowResult.trigger_count) {
+        details.push(`${workflowResult.trigger_count} triggers`);
+      }
+      if (workflowResult.node_count) {
+        details.push(`${workflowResult.node_count} nodes`);
+      }
+      
+      const message = details.length > 0 
+        ? `Workflow started with ${details.join(", ")}!`
+        : `Workflow started! ID: ${workflowResult.workflow_id}`;
+      
+      toast.success(message);
+
+      // Show details of trigger setup
+      if (workflowResult.results) {
+        workflowResult.results.forEach((result, index) => {
+          setTimeout(() => {
+            if (result.status === "monitoring") {
+              toast.success(`🎯 Event monitoring active for trigger ${index + 1}`, { duration: 3000 });
+            } else if (result.status === "executed") {
+              toast.success(`⚡ Immediate execution completed for trigger ${index + 1}`, { duration: 3000 });
+            }
+          }, (index + 1) * 500);
+        });
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error(`Error: ${error.message}`);

@@ -1,0 +1,150 @@
+/* ReactFlow Global Overrides - Ensure handles are always visible */
+
+/* Make all ReactFlow handles highly visible */
+.react-flow__handle {
+  width: 20px !important;
+  height: 20px !important;
+  border: 4px solid #fff !important;
+  background: #4ecdc4 !important;
+  transition: all 0.2s ease !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  opacity: 1 !important;
+  z-index: 10000 !important;
+  cursor: crosshair !important;
+  position: absolute !important;
+  pointer-events: all !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Force visibility for all ReactFlow nodes and handles */
+.react-flow .react-flow__node .react-flow__handle {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  pointer-events: all !important;
+}
+
+/* Force handle visibility in all states */
+.react-flow__handle.source,
+.react-flow__handle.target {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Override any ReactFlow hiding behavior */
+.react-flow__handle[style*="opacity: 0"],
+.react-flow__handle[style*="display: none"],
+.react-flow__handle[style*="visibility: hidden"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Enhanced hover effects */
+.react-flow__handle:hover {
+  background: #38d9a9 !important;
+  transform: scale(1.5) !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(56, 217, 169, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Add a pulsing animation to make handles more noticeable */
+@keyframes pulse-handle {
+  0% {
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(78, 205, 196, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.react-flow__handle {
+  animation: pulse-handle 2s infinite !important;
+}
+
+/* Handle type-specific styling */
+.react-flow__handle.trigger-handle {
+  background: #e74c3c !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.data-handle {
+  background: #4ecdc4 !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.success-handle {
+  background: #2ecc71 !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.error-handle {
+  background: #e74c3c !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.condition-handle {
+  background: #f39c12 !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.metadata-handle {
+  background: #9b59b6 !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.system-handle {
+  background: #f39c12 !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.context-handle {
+  background: #3498db !important;
+  border: 3px solid #fff !important;
+}
+
+.react-flow__handle.response-handle {
+  background: #2ecc71 !important;
+  border: 3px solid #fff !important;
+}
+
+/* Position overrides */
+.react-flow__handle-left {
+  left: -12px !important;
+}
+
+.react-flow__handle-right {
+  right: -12px !important;
+}
+
+.react-flow__handle-top {
+  top: -12px !important;
+}
+
+.react-flow__handle-bottom {
+  bottom: -12px !important;
+}
+
+/* Ensure handles are above everything */
+.react-flow__node .react-flow__handle {
+  z-index: 10001 !important;
+}
+
+/* Force all ReactFlow elements to show handles */
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Override any ReactFlow default hiding */
+.react-flow .react-flow__handle {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}

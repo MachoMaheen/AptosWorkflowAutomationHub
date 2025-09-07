@@ -1,49 +1,111 @@
-/* Custom edge styling for better visibility */
+/* Enhanced edge styling for better n8n-like visibility */
 
-/* Enhanced edge visibility */
+/* Make edges thicker and more visible by default */
 .react-flow__edge-path {
-  stroke-width: 2px;
-  transition: all 0.2s ease;
+  stroke-width: 3px !important;
+  stroke: #4ecdc4 !important;
+  transition: all 0.3s ease !important;
+  filter: drop-shadow(0 2px 4px rgba(78, 205, 196, 0.3)) !important;
 }
 
-/* Make edges more visible on hover */
+/* Enhanced hover effects */
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke-width: 3px;
-  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
+  stroke-width: 5px !important;
+  stroke: #38d9a9 !important;
+  filter: drop-shadow(0 4px 8px rgba(78, 205, 196, 0.6)) !important;
 }
 
-/* Connection line styling */
+/* Connection line styling - more visible while dragging */
 .react-flow__connectionline {
-  stroke: #4ecdc4;
-  stroke-width: 2px;
-  stroke-dasharray: 5, 5;
-  animation: dash 0.5s linear infinite;
+  stroke: #ff6b6b !important;
+  stroke-width: 4px !important;
+  stroke-dasharray: 8, 8 !important;
+  animation: dash 0.8s linear infinite !important;
+  filter: drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4)) !important;
 }
 
 @keyframes dash {
   to {
-    stroke-dashoffset: -10;
+    stroke-dashoffset: -16;
   }
 }
 
-/* Edge labels */
+/* Edge labels - better visibility */
 .react-flow__edge-text {
-  fill: #2d3748;
-  font-size: 12px;
-  font-weight: 600;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  fill: #2d3748 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Edge selection styling */
+/* Edge selection styling - more prominent */
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #ff6b6b;
-  stroke-width: 3px;
-  filter: drop-shadow(0 0 6px rgba(255, 107, 107, 0.6));
+  stroke: #ff6b6b !important;
+  stroke-width: 5px !important;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.8)) !important;
 }
 
-/* Better edge button positioning */
+/* Better edge button positioning and visibility */
 .react-flow__edge .react-flow__edge-textbg {
-  fill: rgba(255, 255, 255, 0.9);
-  stroke: rgba(78, 205, 196, 0.3);
-  stroke-width: 1px;
+  fill: rgba(255, 255, 255, 0.95) !important;
+  stroke: rgba(78, 205, 196, 0.6) !important;
+  stroke-width: 2px !important;
+}
+
+/* Arrow markers - Enhanced visibility and size */
+.react-flow__edge .react-flow__edge-path {
+  marker-end: url(#react-flow__arrowclosed) !important;
+}
+
+/* Ensure arrow markers are visible - Critical fix */
+.react-flow__edge-path[marker-end] {
+  marker-end: url(#react-flow__arrowclosed) !important;
+}
+
+/* Force arrow markers for all edge types */
+.react-flow svg defs marker {
+  overflow: visible !important;
+}
+
+.react-flow svg defs marker polygon {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  stroke-width: 1px !important;
+}
+
+/* Make sure arrow markers inherit edge color */
+.react-flow__edge-path[marker-end="url(#react-flow__arrowclosed)"] {
+  marker-end: url(#react-flow__arrowclosed) !important;
+}
+
+/* Animated edges for data flow visualization */
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 8 !important;
+  animation: edge-flow 2s ease-in-out infinite !important;
+}
+
+@keyframes edge-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 16;
+  }
+}
+
+/* Different edge types with colors */
+.react-flow__edge[data-type="trigger"] .react-flow__edge-path {
+  stroke: #ff6b6b !important;
+}
+
+.react-flow__edge[data-type="data"] .react-flow__edge-path {
+  stroke: #4ecdc4 !important;
+}
+
+.react-flow__edge[data-type="success"] .react-flow__edge-path {
+  stroke: #26de81 !important;
+}
+
+.react-flow__edge[data-type="error"] .react-flow__edge-path {
+  stroke: #fc5c65 !important;
 }

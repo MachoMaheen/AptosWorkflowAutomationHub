@@ -1,15 +1,19 @@
-// aptosEventTriggerNode.js - ENHANCED WITH DYNAMIC FIELDS & PROPER HANDLES
+// aptosEventTriggerNode.js - ENHANCED WITH DYNAMIC FIELDS & PROPER CONNECTIONS
 import { Position } from "@xyflow/react";
 import { BaseNode } from "../components/BaseNode";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export const AptosEventTriggerNode = ({ id, data }) => {
-  const [currentEventType, setCurrentEventType] = useState(
-    data?.eventType || "nft_mint"
-  );
+  const [currentEventType, setCurrentEventType] = useState(data?.eventType || "nft_mint");
+  const [forceUpdate, setForceUpdate] = useState(0);
 
-  // Dynamic fields based on event type
-  const getFieldsForEventType = (eventType) => {
+  // Force re-render when event type changes
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [currentEventType]);
+
+  // Dynamic fields that change based on dropdown selection
+  const getFieldsForEventType = useCallback((eventType) => {
     const baseFields = [
       {
         name: "eventType",
@@ -25,11 +29,11 @@ export const AptosEventTriggerNode = ({ id, data }) => {
         ],
         onChange: (value) => {
           setCurrentEventType(value);
-          // Update data immediately
+          setForceUpdate(prev => prev + 1); // Force component re-render
           if (data) {
             data.eventType = value;
           }
-        },
+        }
       },
       {
         name: "contractAddress",
@@ -49,7 +53,7 @@ export const AptosEventTriggerNode = ({ id, data }) => {
       },
     ];
 
-    // Add event-specific fields
+    // Add event-specific fields based on selection
     switch (eventType) {
       case "nft_mint":
         return [
@@ -67,163 +71,100 @@ export const AptosEventTriggerNode = ({ id, data }) => {
             label: "Creator Address (Optional)",
             defaultValue: "",
             placeholder: "0x123... (leave empty for any creator)",
-          },
-          {
-            name: "eventFilter",
-            type: "textarea",
-            label: "Event Filter (JSON)",
-            defaultValue: '{"type": "mint"}',
-            placeholder: '{"property_version": 0, "amount": ">1"}',
-          },
+          }
         ];
-
       case "token_transfer":
         return [
           ...baseFields,
           {
-            name: "tokenType",
-            type: "select",
-            label: "Token Type",
-            defaultValue: "apt",
-            options: [
-              { value: "apt", label: "APT" },
-              { value: "custom", label: "Custom Token" },
-            ],
-          },
-          {
             name: "minAmount",
             type: "number",
-            label: "Minimum Amount",
+            label: "Minimum Amount (Octas)",
             defaultValue: 1000000,
             placeholder: "1000000 = 0.01 APT",
           },
           {
-            name: "eventFilter",
-            type: "textarea",
-            label: "Event Filter (JSON)",
-            defaultValue: '{"amount": ">0"}',
-            placeholder: '{"amount": ">1000000", "to": "0x123..."}',
-          },
+            name: "tokenType",
+            type: "select",
+            label: "Token Type",
+            defaultValue: "APT",
+            options: [
+              { value: "APT", label: "APT (Native)" },
+              { value: "USDC", label: "USDC" },
+              { value: "custom", label: "Custom Token" },
+            ],
+          }
         ];
-
-      case "account_created":
-        return [
-          ...baseFields,
-          {
-            name: "accountFilter",
-            type: "text",
-            label: "Account Filter",
-            defaultValue: "",
-            placeholder: "Leave empty for all accounts",
-          },
-        ];
-
-      case "smart_contract_event":
-        return [
-          ...baseFields,
-          {
-            name: "eventName",
-            type: "text",
-            label: "Event Name",
-            defaultValue: "",
-            placeholder: "e.g., TransferEvent",
-          },
-          {
-            name: "eventFilter",
-            type: "textarea",
-            label: "Event Filter (JSON)",
-            defaultValue: "{}",
-            placeholder: '{"field": "value"}',
-          },
-        ];
-
-      case "custom_event":
-        return [
-          ...baseFields,
-          {
-            name: "eventName",
-            type: "text",
-            label: "Event Name",
-            defaultValue: "",
-            placeholder: "Custom event name",
-          },
-          {
-            name: "eventFilter",
-            type: "textarea",
-            label: "Event Filter (JSON)",
-            defaultValue: "{}",
-            placeholder: '{"custom_field": "value"}',
-          },
-        ];
-
       default:
         return baseFields;
     }
-  };
+  }, [data]);
 
   const fields = getFieldsForEventType(currentEventType);
 
-  // Dynamic handles based on event type
-  const getDynamicHandles = (eventType) => {
-    const baseHandles = [
-      {
-        type: "source",
-        position: Position.Right,
-        id: `${id}-trigger`,
-        style: { top: "25%" },
-        className: "trigger-handle",
-        label: "Trigger",
+  // Typed handles for proper connections
+  const handles = [
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-trigger`,
+      style: { 
+        top: "25%", 
+        background: "#e74c3c",
+        border: "3px solid #fff"
       },
-      {
-        type: "source",
-        position: Position.Right,
-        id: `${id}-event-data`,
-        style: { top: "50%" },
-        className: "data-handle",
-        label: "Event Data",
+      className: "trigger-handle",
+      label: "Trigger"
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-event-data`,
+      style: { 
+        top: "50%", 
+        background: "#4ecdc4",
+        border: "3px solid #fff"
       },
-      {
-        type: "source",
-        position: Position.Right,
-        id: `${id}-metadata`,
-        style: { top: "75%" },
-        className: "metadata-handle",
-        label: "Metadata",
+      className: "data-handle",
+      label: "Event Data"
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      id: `${id}-metadata`,
+      style: { 
+        top: "75%", 
+        background: "#9b59b6",
+        border: "3px solid #fff"
       },
-    ];
-
-    return baseHandles;
-  };
-
-  const handles = getDynamicHandles(currentEventType);
+      className: "metadata-handle",
+      label: "Metadata"
+    }
+  ];
 
   return (
     <BaseNode
       id={id}
       data={data}
-      title="🎯 APTOS EVENT TRIGGER"
+      title="🎯 EVENT TRIGGER"
       fields={fields}
       handles={handles}
       className="aptos-event-trigger-node"
       minWidth={340}
       minHeight={300}
     >
-      <div
-        style={{
-          fontSize: "11px",
-          color: "#2d3748",
-          marginTop: "4px" /* Reduced top margin */,
-          marginBottom: "0px" /* Ensure no bottom margin */,
-          padding: "6px 10px" /* Reduced padding */,
-          background: "rgba(255, 255, 255, 0.9)",
-          borderRadius: "6px",
-          border: "1px solid rgba(78, 205, 196, 0.5)",
-        }}
-      >
-        <strong style={{ color: "#4ecdc4" }}>Status:</strong> Listening for{" "}
-        {currentEventType.replace("_", " ")} events...
-        <div style={{ marginTop: "2px", fontSize: "10px" }}>
-          <strong>Output:</strong> Trigger → Event Data → Metadata
+      <div style={{
+        fontSize: "11px",
+        color: "#2d3748",
+        marginTop: "10px",
+        padding: "8px 12px",
+        background: "rgba(255, 255, 255, 0.9)",
+        borderRadius: "6px",
+        border: "1px solid rgba(78, 205, 196, 0.5)",
+      }}>
+        <strong style={{ color: "#4ecdc4" }}>Mode:</strong> {currentEventType}
+        <div style={{ marginTop: "4px", fontSize: "10px" }}>
+          <strong>Outputs:</strong> Trigger | Event Data | Metadata
         </div>
       </div>
     </BaseNode>

@@ -224,50 +224,71 @@
   padding: 8px 12px;
 }
 
-/* Handle styling - Enhanced visibility */
+/* Handle styling - Enhanced visibility and always visible */
 .react-flow__handle {
-  width: 18px !important;
-  height: 18px !important;
+  width: 20px !important;
+  height: 20px !important;
   border: 4px solid #fff !important;
   background: #4ecdc4 !important;
   transition: all 0.2s ease !important;
   border-radius: 50% !important;
   box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   opacity: 1 !important;
-  z-index: 10 !important;
+  z-index: 10000 !important;
+  cursor: crosshair !important;
+  position: absolute !important;
+  pointer-events: all !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Force visibility on all handle states */
+.react-flow__handle.source,
+.react-flow__handle.target {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  pointer-events: all !important;
 }
 
 .react-flow__handle:hover {
   background: #38d9a9 !important;
-  transform: scale(1.4) !important;
+  transform: scale(1.5) !important;
   border-color: #fff !important;
   box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  z-index: 2000 !important;
 }
 
 .react-flow__handle-connecting {
   background: #ff6b6b !important;
   box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.4) !important;
+  transform: scale(1.3) !important;
 }
 
 .react-flow__handle-valid {
   background: #51cf66 !important;
   box-shadow: 0 0 0 4px rgba(81, 207, 102, 0.4) !important;
+  transform: scale(1.2) !important;
 }
 
 .react-flow__handle-left {
-  left: -10px !important;
+  left: -15px !important;
+  transform: translateY(-50%) !important;
 }
 
 .react-flow__handle-right {
-  right: -10px !important;
+  right: -15px !important;
+  transform: translateY(-50%) !important;
 }
 
 .react-flow__handle-top {
-  top: -10px !important;
+  top: -15px !important;
+  transform: translateX(-50%) !important;
 }
 
 .react-flow__handle-bottom {
-  bottom: -10px !important;
+  bottom: -15px !important;
+  transform: translateX(-50%) !important;
 }
 
 /* Handle type-specific styling */
@@ -447,4 +468,79 @@
   opacity: 0.6;
   cursor: not-allowed;
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* Handle dots - our custom visible handles */
+.handle-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  background: #fff;
+  cursor: crosshair;
+  z-index: 999;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  top: 0;
+  left: 0;
+}
+
+.handle-dot:hover {
+  transform: scale(1.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.handle-dot.source {
+  background: #4CAF50;
+  border-color: #2E7D32;
+}
+
+.handle-dot.target {
+  background: #2196F3;
+  border-color: #1565C0;
+}
+
+.handle-dot.connecting {
+  background: #ff6b6b;
+  border-color: #d32f2f;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Enhanced handle visibility */
+/* Removed duplicate handle styles - using the prominent styles above */
+
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connecting {
+  background: #ff6b6b !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 8px rgba(255, 107, 107, 0.6) !important;
+}
+
+.react-flow__handle.valid {
+  background: #4CAF50 !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6) !important;
+}
+
+.react-flow__handle-left {
+  left: -8px !important;
+}
+
+.react-flow__handle-right {
+  right: -8px !important;
+}
+
+.react-flow__handle-top {
+  top: -8px !important;
+}
+
+.react-flow__handle-bottom {
+  bottom: -8px !important;
 }

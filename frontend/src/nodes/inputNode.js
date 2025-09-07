@@ -179,9 +179,25 @@ export const InputNode = ({ id, data }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-value`,
-      style: { top: "50%" },
+      style: { 
+        top: "50%",
+        background: "#4ecdc4",
+        border: "3px solid #fff"
+      },
       className: "data-handle",
       label: "Value",
+    },
+    {
+      type: "source", 
+      position: Position.Right,
+      id: `${id}-metadata`,
+      style: { 
+        top: "75%",
+        background: "#9b59b6",
+        border: "3px solid #fff"
+      },
+      className: "metadata-handle",
+      label: "Meta",
     },
   ];
 

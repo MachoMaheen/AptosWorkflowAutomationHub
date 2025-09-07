@@ -1,36 +1,37 @@
-// aptosActionNode.js - ENHANCED WITH DYNAMIC FIELDS & PROPER DATA FLOW
+// aptosActionNode.js - ENHANCED WITH CONNECTION HANDLING
 import { Position } from "@xyflow/react";
 import { BaseNode } from "../components/BaseNode";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
 
 export const AptosActionNode = ({ id, data }) => {
   const { connected, signAndSubmitTransaction } = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
-  const [currentActionType, setCurrentActionType] = useState(
-    data?.actionType || "token_transfer"
-  );
+  const [currentActionType, setCurrentActionType] = useState(data?.actionType || "token_transfer");
+  const [forceUpdate, setForceUpdate] = useState(0);
 
-  // Execute transaction based on incoming data
-  const executeTransaction = async (incomingData = null) => {
+  // Force re-render when action type changes
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [currentActionType]);
+
+  // Execute transaction with incoming data support
+  const executeTransaction = useCallback(async (incomingData = null) => {
     if (!connected) {
       toast.error("Please connect your wallet first");
-      return;
+      return { success: false, error: "Wallet not connected" };
     }
 
     setIsExecuting(true);
     try {
-      // Use incoming data if available, otherwise use node configuration
-      const actionType =
-        incomingData?.actionType || data?.actionType || "token_transfer";
-      const recipientAddress =
-        incomingData?.recipient || data?.recipientAddress;
+      // Merge incoming data with node configuration
+      const actionType = incomingData?.actionType || data?.actionType || "token_transfer";
+      const recipientAddress = incomingData?.recipient || data?.recipientAddress;
       const amount = incomingData?.amount || data?.amount || 100000000;
 
       if (!recipientAddress) {
-        toast.error("Please enter a recipient address");
-        return;
+        throw new Error("Recipient address required");
       }
 
       let payload;
@@ -42,48 +43,19 @@ export const AptosActionNode = ({ id, data }) => {
             arguments: [recipientAddress, amount.toString()],
           };
           break;
-
-        case "nft_transfer":
-          const tokenId = incomingData?.tokenId || data?.tokenId;
-          if (!tokenId) {
-            toast.error("Please enter a token ID for NFT transfer");
-            return;
-          }
-          payload = {
-            function: "0x3::token_transfers::offer_script",
-            type_arguments: [],
-            arguments: [recipientAddress, tokenId, 1],
-          };
-          break;
-
         case "entry_function":
           const functionName = data?.functionName;
-          const functionArgs = data?.functionArgs || "[]";
-          if (!functionName) {
-            toast.error("Please enter a function name");
-            return;
-          }
-          try {
-            const parsedArgs = JSON.parse(functionArgs);
-            payload = {
-              function: functionName,
-              type_arguments: [],
-              arguments: parsedArgs,
-            };
-          } catch (e) {
-            toast.error("Invalid function arguments JSON");
-            return;
-          }
+          const functionArgs = JSON.parse(data?.functionArgs || "[]");
+          if (!functionName) throw new Error("Function name required");
+          
+          payload = {
+            function: functionName,
+            type_arguments: [],
+            arguments: incomingData ? [...functionArgs, ...Object.values(incomingData)] : functionArgs,
+          };
           break;
-
-        case "conditional_transfer":
-          // This would be more complex in a real implementation
-          toast.error("Conditional transfer not yet implemented");
-          return;
-
         default:
-          toast.error("Unsupported action type");
-          return;
+          throw new Error("Unsupported action type");
       }
 
       const response = await signAndSubmitTransaction({
@@ -95,35 +67,30 @@ export const AptosActionNode = ({ id, data }) => {
       });
 
       toast.success(`Transaction submitted: ${response.hash}`);
-      console.log("Transaction response:", response);
-
-      // Return success data for connected nodes
+      
       return {
         success: true,
         transactionHash: response.hash,
         actionType: actionType,
         timestamp: new Date().toISOString(),
         recipient: recipientAddress,
-        amount: amount,
+        amount: amount
       };
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      toast.error(`Transaction failed: ${error.message || "Unknown error"}`);
 
-      // Return error data for error handling nodes
+    } catch (error) {
+      toast.error(`Transaction failed: ${error.message}`);
       return {
         success: false,
-        error: error.message || "Unknown error",
-        actionType: currentActionType,
-        timestamp: new Date().toISOString(),
+        error: error.message,
+        timestamp: new Date().toISOString()
       };
     } finally {
       setIsExecuting(false);
     }
-  };
+  }, [connected, signAndSubmitTransaction, data]);
 
   // Dynamic fields based on action type
-  const getFieldsForActionType = (actionType) => {
+  const getFieldsForActionType = useCallback((actionType) => {
     const baseFields = [
       {
         name: "actionType",
@@ -142,11 +109,12 @@ export const AptosActionNode = ({ id, data }) => {
         ],
         onChange: (value) => {
           setCurrentActionType(value);
+          setForceUpdate(prev => prev + 1); // Force component re-render
           if (data) {
             data.actionType = value;
           }
-        },
-      },
+        }
+      }
     ];
 
     switch (actionType) {
@@ -158,70 +126,16 @@ export const AptosActionNode = ({ id, data }) => {
             type: "text",
             label: "Recipient Address",
             defaultValue: "",
-            placeholder: "0x123...abc (recipient wallet address)",
+            placeholder: "0x123...abc or use incoming data",
           },
           {
             name: "amount",
             type: "number",
-            label: "Amount (in Octas for APT)",
+            label: "Amount (Octas)",
             defaultValue: 100000000,
-            min: 1,
-            step: 1000000,
             placeholder: "100000000 = 1 APT",
-          },
+          }
         ];
-
-      case "nft_transfer":
-        return [
-          ...baseFields,
-          {
-            name: "recipientAddress",
-            type: "text",
-            label: "Recipient Address",
-            defaultValue: "",
-            placeholder: "0x123...abc (recipient wallet address)",
-          },
-          {
-            name: "tokenId",
-            type: "text",
-            label: "Token ID",
-            defaultValue: "",
-            placeholder: "Token ID to transfer",
-          },
-        ];
-
-      case "conditional_transfer":
-        return [
-          ...baseFields,
-          {
-            name: "condition",
-            type: "select",
-            label: "Condition",
-            defaultValue: "amount_greater_than",
-            options: [
-              { value: "amount_greater_than", label: "Amount > Value" },
-              { value: "balance_sufficient", label: "Balance Sufficient" },
-              { value: "time_based", label: "Time Based" },
-            ],
-          },
-          {
-            name: "recipientAddress",
-            type: "text",
-            label: "Recipient Address",
-            defaultValue: "",
-            placeholder: "0x123...abc (recipient wallet address)",
-          },
-          {
-            name: "amount",
-            type: "number",
-            label: "Amount (in Octas for APT)",
-            defaultValue: 100000000,
-            min: 1,
-            step: 1000000,
-            placeholder: "100000000 = 1 APT",
-          },
-        ];
-
       case "entry_function":
         return [
           ...baseFields,
@@ -230,77 +144,87 @@ export const AptosActionNode = ({ id, data }) => {
             type: "text",
             label: "Function Name",
             defaultValue: "",
-            placeholder: "e.g., 0x1::aptos_account::transfer",
+            placeholder: "0x1::module::function",
           },
           {
             name: "functionArgs",
             type: "textarea",
-            label: "Function Arguments (JSON Array)",
+            label: "Arguments (JSON)",
             defaultValue: "[]",
-            placeholder: '["address", 1000000]',
-          },
+            placeholder: '["arg1", 123]',
+          }
         ];
-
       default:
         return baseFields;
     }
-  };
+  }, [data]);
 
   const fields = getFieldsForActionType(currentActionType);
 
-  // Handles for different connection types
+  // Typed handles for input/output
   const handles = [
     // Input handles
     {
       type: "target",
       position: Position.Left,
       id: `${id}-trigger`,
-      style: { top: "20%" },
+      style: { 
+        top: "20%", 
+        background: "#e74c3c",
+        border: "3px solid #fff"
+      },
       className: "trigger-handle",
-      label: "Trigger",
+      label: "Trigger"
     },
     {
       type: "target",
       position: Position.Left,
       id: `${id}-data`,
-      style: { top: "40%" },
+      style: { 
+        top: "50%", 
+        background: "#4ecdc4",
+        border: "3px solid #fff"
+      },
       className: "data-handle",
-      label: "Data",
+      label: "Data"
     },
     {
       type: "target",
       position: Position.Left,
       id: `${id}-condition`,
-      style: { top: "60%" },
+      style: { 
+        top: "80%", 
+        background: "#f39c12",
+        border: "3px solid #fff"
+      },
       className: "condition-handle",
-      label: "Condition",
+      label: "Condition"
     },
-
     // Output handles
     {
       type: "source",
       position: Position.Right,
       id: `${id}-success`,
-      style: { top: "25%" },
+      style: { 
+        top: "30%", 
+        background: "#2ecc71",
+        border: "3px solid #fff"
+      },
       className: "success-handle",
-      label: "Success",
+      label: "Success"
     },
     {
       type: "source",
       position: Position.Right,
       id: `${id}-error`,
-      style: { top: "50%" },
+      style: { 
+        top: "70%", 
+        background: "#e74c3c",
+        border: "3px solid #fff"
+      },
       className: "error-handle",
-      label: "Error",
-    },
-    {
-      type: "source",
-      position: Position.Right,
-      id: `${id}-transaction-data`,
-      style: { top: "75%" },
-      className: "transaction-handle",
-      label: "Txn Data",
-    },
+      label: "Error"
+    }
   ];
 
   return (
@@ -312,30 +236,24 @@ export const AptosActionNode = ({ id, data }) => {
       handles={handles}
       className="aptos-action-node"
       minWidth={360}
-      minHeight={320}
+      minHeight={300}
     >
-      <div
-        style={{
-          fontSize: "11px",
-          color: "#2d3748",
-          marginTop: "4px" /* Reduced top margin */,
-          marginBottom: "0px" /* Ensure no bottom margin */,
-          padding: "6px 10px" /* Reduced padding */,
-          background: "rgba(255, 255, 255, 0.9)",
-          borderRadius: "6px",
-          border: connected
-            ? "1px solid rgba(34, 197, 94, 0.5)"
-            : "1px solid rgba(239, 68, 68, 0.5)",
-        }}
-      >
-        <strong style={{ color: connected ? "#22c55e" : "#ef4444" }}>
-          Wallet:
-        </strong>{" "}
-        {connected ? "Connected ✓" : "Connect wallet to execute"}
-        <div style={{ marginTop: "2px", fontSize: "10px" }}>
-          <strong>Inputs:</strong> Trigger | Data | Condition
-          <br />
-          <strong>Outputs:</strong> Success | Error | Transaction Data
+      <div style={{
+        fontSize: "11px",
+        color: "#2d3748",
+        marginTop: "10px",
+        padding: "8px 12px",
+        background: "rgba(255, 255, 255, 0.9)",
+        borderRadius: "6px",
+        border: connected 
+          ? "1px solid rgba(34, 197, 94, 0.5)"
+          : "1px solid rgba(239, 68, 68, 0.5)",
+      }}>
+        <strong style={{ color: connected ? "#22c55e" : "#ef4444" }}>Wallet:</strong>{" "}
+        {connected ? "Connected ✓" : "Disconnected"}
+        <div style={{ marginTop: "4px", fontSize: "10px" }}>
+          <strong>Type:</strong> {currentActionType}<br />
+          <strong>I/O:</strong> Trigger + Data → Success/Error
         </div>
       </div>
 
@@ -346,25 +264,21 @@ export const AptosActionNode = ({ id, data }) => {
           disabled={isExecuting}
           style={{
             width: "100%",
-            padding: "6px 10px" /* Reduced padding */,
-            background: isExecuting
-              ? "rgba(156, 163, 175, 0.8)"
-              : "linear-gradient(135deg, #4ecdc4 0%, #44d1ca 100%)",
-            color: "white",
+            marginTop: "8px",
+            padding: "6px 12px",
+            background: isExecuting 
+              ? "linear-gradient(135deg, #a0a0a0 0%, #808080 100%)"
+              : "linear-gradient(135deg, #4ecdc4 0%, #38d9a9 100%)",
             border: "none",
-            borderRadius: "8px",
-            cursor: isExecuting ? "not-allowed" : "pointer",
-            fontSize: "11px" /* Reduced font size */,
+            borderRadius: "6px",
+            color: "white",
+            fontSize: "11px",
             fontWeight: "600",
-            transition: "all 0.2s ease",
-            boxShadow: isExecuting
-              ? "none"
-              : "0 2px 4px rgba(78, 205, 196, 0.3)",
-            marginTop: "4px" /* Reduced top margin */,
-            marginBottom: "0px" /* Ensure no bottom margin */,
+            cursor: isExecuting ? "not-allowed" : "pointer",
+            textTransform: "uppercase",
           }}
         >
-          {isExecuting ? "Executing..." : "🚀 Execute Transaction"}
+          {isExecuting ? "Executing..." : "🚀 Test Execute"}
         </button>
       )}
     </BaseNode>

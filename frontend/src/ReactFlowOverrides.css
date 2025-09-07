@@ -1,0 +1,168 @@
+/* ReactFlow Global Overrides - Force Handle and Edge Visibility */
+
+/* CRITICAL: Force all handles to be visible and interactive */
+.react-flow .react-flow__handle {
+  opacity: 1 !important;
+  pointer-events: all !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  position: absolute !important;
+  width: 20px !important;
+  height: 20px !important;
+  border: 4px solid #fff !important;
+  border-radius: 50% !important;
+  background: #4ecdc4 !important;
+  cursor: crosshair !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Force handle positioning */
+.react-flow .react-flow__handle-left {
+  left: -15px !important;
+  transform: translateY(-50%) !important;
+}
+
+.react-flow .react-flow__handle-right {
+  right: -15px !important;
+  transform: translateY(-50%) !important;
+}
+
+.react-flow .react-flow__handle-top {
+  top: -15px !important;
+  transform: translateX(-50%) !important;
+}
+
+.react-flow .react-flow__handle-bottom {
+  bottom: -15px !important;
+  transform: translateX(-50%) !important;
+}
+
+/* CRITICAL: Force edge arrow markers to be visible */
+.react-flow svg {
+  overflow: visible !important;
+}
+
+.react-flow svg defs {
+  overflow: visible !important;
+}
+
+.react-flow svg defs marker {
+  overflow: visible !important;
+  fill: currentColor !important;
+}
+
+.react-flow svg defs marker polygon {
+  fill: inherit !important;
+  stroke: inherit !important;
+}
+
+/* Ensure edges are always visible with proper arrows */
+.react-flow .react-flow__edge {
+  pointer-events: all !important;
+  z-index: 100 !important;
+}
+
+.react-flow .react-flow__edge-path {
+  stroke-width: 3px !important;
+  stroke: #4ecdc4 !important;
+  fill: none !important;
+  marker-end: url(#react-flow__arrowclosed) !important;
+}
+
+/* Force arrow marker definition */
+.react-flow svg defs marker#react-flow__arrowclosed {
+  overflow: visible !important;
+  fill: #4ecdc4 !important;
+  stroke: #4ecdc4 !important;
+}
+
+.react-flow svg defs marker#react-flow__arrowclosed polygon {
+  fill: #4ecdc4 !important;
+  stroke: #4ecdc4 !important;
+  stroke-width: 1px !important;
+}
+
+/* Node positioning - ensure nodes don't clip handles */
+.react-flow .react-flow__node {
+  pointer-events: all !important;
+  z-index: 10 !important;
+}
+
+/* Ensure node content doesn't interfere with handles */
+.react-flow .react-flow__node > div {
+  pointer-events: all !important;
+}
+
+/* Connection line while dragging */
+.react-flow .react-flow__connectionline {
+  stroke: #ff6b6b !important;
+  stroke-width: 4px !important;
+  stroke-dasharray: 8, 8 !important;
+  pointer-events: none !important;
+  z-index: 1001 !important;
+}
+
+/* Selection box styling */
+.react-flow .react-flow__selection {
+  background: rgba(78, 205, 196, 0.1) !important;
+  border: 1px solid #4ecdc4 !important;
+}
+
+/* Controls styling */
+.react-flow .react-flow__controls {
+  z-index: 1000 !important;
+}
+
+.react-flow .react-flow__controls button {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(78, 205, 196, 0.3) !important;
+  border-radius: 6px !important;
+  color: #2d3748 !important;
+}
+
+.react-flow .react-flow__controls button:hover {
+  background: #fff !important;
+  border-color: #4ecdc4 !important;
+  transform: scale(1.05) !important;
+}
+
+/* MiniMap styling */
+.react-flow .react-flow__minimap {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid #4a5568 !important;
+  border-radius: 8px !important;
+}
+
+/* Attribution hiding */
+.react-flow .react-flow__attribution {
+  display: none !important;
+}
+
+/* Ensure viewport doesn't interfere */
+.react-flow .react-flow__viewport {
+  pointer-events: all !important;
+}
+
+/* Handle connection validation states */
+.react-flow .react-flow__handle-connecting {
+  background: #ff6b6b !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.4) !important;
+  transform: scale(1.3) !important;
+}
+
+.react-flow .react-flow__handle-valid {
+  background: #51cf66 !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(81, 207, 102, 0.4) !important;
+  transform: scale(1.2) !important;
+}
+
+.react-flow .react-flow__handle:hover {
+  background: #38d9a9 !important;
+  transform: scale(1.5) !important;
+  z-index: 2000 !important;
+  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
