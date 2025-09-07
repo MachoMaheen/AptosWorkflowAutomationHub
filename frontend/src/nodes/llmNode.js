@@ -84,10 +84,10 @@ export const LLMNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-system`,
-      style: { 
+      style: {
         top: "25%",
         background: "#f39c12",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "system-handle",
       label: "System",
@@ -96,10 +96,10 @@ export const LLMNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-prompt`,
-      style: { 
+      style: {
         top: "50%",
         background: "#4ecdc4",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "data-handle",
       label: "Prompt",
@@ -108,10 +108,10 @@ export const LLMNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-context`,
-      style: { 
+      style: {
         top: "75%",
         background: "#3498db",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "context-handle",
       label: "Context",
@@ -120,10 +120,10 @@ export const LLMNode = ({ id, data }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-response`,
-      style: { 
+      style: {
         top: "40%",
         background: "#2ecc71",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "response-handle",
       label: "Response",
@@ -132,10 +132,10 @@ export const LLMNode = ({ id, data }) => {
       type: "source",
       position: Position.Right,
       id: `${id}-metadata`,
-      style: { 
+      style: {
         top: "70%",
         background: "#9b59b6",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "metadata-handle",
       label: "Metadata",

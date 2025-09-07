@@ -492,13 +492,13 @@
 }
 
 .handle-dot.source {
-  background: #4CAF50;
-  border-color: #2E7D32;
+  background: #4caf50;
+  border-color: #2e7d32;
 }
 
 .handle-dot.target {
-  background: #2196F3;
-  border-color: #1565C0;
+  background: #2196f3;
+  border-color: #1565c0;
 }
 
 .handle-dot.connecting {
@@ -508,9 +508,15 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Enhanced handle visibility */
@@ -524,7 +530,7 @@
 }
 
 .react-flow__handle.valid {
-  background: #4CAF50 !important;
+  background: #4caf50 !important;
   opacity: 1 !important;
   box-shadow: 0 0 8px rgba(76, 175, 80, 0.6) !important;
 }

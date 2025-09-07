@@ -14,32 +14,34 @@ import "./styles/ReactFlowOverrides.css";
 
 // WebSocket status indicator component
 const WebSocketStatus = ({ isConnected }) => (
-  <div style={{
-    position: 'fixed',
-    top: '10px',
-    right: '10px',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: '600',
-    background: isConnected ? '#10b981' : '#ef4444',
-    color: 'white',
-    zIndex: 1000,
-    opacity: 0.8
-  }}>
-    {isConnected ? '● WebSocket Connected' : '● WebSocket Disconnected'}
+  <div
+    style={{
+      position: "fixed",
+      top: "10px",
+      right: "10px",
+      padding: "4px 8px",
+      borderRadius: "4px",
+      fontSize: "11px",
+      fontWeight: "600",
+      background: isConnected ? "#10b981" : "#ef4444",
+      color: "white",
+      zIndex: 1000,
+      opacity: 0.8,
+    }}
+  >
+    {isConnected ? "● WebSocket Connected" : "● WebSocket Disconnected"}
   </div>
 );
 
 function AppContent() {
   // Initialize WebSocket connection
-  const { isConnected } = useWebSocket('ws://localhost:8000/ws');
+  const { isConnected } = useWebSocket("ws://localhost:8000/ws");
 
   return (
     <div className="app">
       {/* WebSocket status indicator */}
       <WebSocketStatus isConnected={isConnected} />
-      
+
       {/* Full screen pipeline UI */}
       <PipelineUI />
 

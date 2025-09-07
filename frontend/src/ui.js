@@ -31,6 +31,7 @@ import { AptosEventTriggerNode } from "./nodes/aptosEventTriggerNode";
 import { AptosActionNode } from "./nodes/aptosActionNode";
 import { WalletConnectionNode } from "./nodes/walletConnectionNode";
 import { TestNode } from "./nodes/TestNode";
+import { useWorkflowEngine } from "./workflowEngine";
 
 import toast from "react-hot-toast";
 import "@xyflow/react/dist/style.css";
@@ -54,7 +55,7 @@ const nodeTypes = {
   aptosEventTrigger: AptosEventTriggerNode,
   aptosAction: AptosActionNode,
   walletConnection: WalletConnectionNode,
-  
+
   test: TestNode, // Add test node for debugging
 };
 
@@ -82,6 +83,47 @@ const FlowComponent = () => {
   // Use React Flow's built-in state management only
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Add workflow engine integration
+  const nodeRefs = useRef(new Map());
+  const { executeWorkflow, handleWebSocketEvent } = useWorkflowEngine(
+    nodes,
+    edges,
+    nodeRefs
+  );
+
+  // WebSocket connection for workflow execution
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8000/ws");
+
+    ws.onopen = () => {
+      console.log("🔗 Workflow engine WebSocket connected");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("📨 Workflow engine received WebSocket event:", data);
+
+        // Pass event to workflow engine for processing
+        handleWebSocketEvent(data);
+      } catch (error) {
+        console.error("❌ Error parsing WebSocket message:", error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("🔌 Workflow engine WebSocket disconnected");
+    };
+
+    ws.onerror = (error) => {
+      console.error("❌ Workflow engine WebSocket error:", error);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [handleWebSocketEvent]);
 
   // Handle keyboard events for node deletion
   useEffect(() => {
@@ -142,65 +184,65 @@ const FlowComponent = () => {
 
     // Create event-driven automation workflow as per PRD
     const walletNode = {
-      id: 'wallet-1',
-      type: 'walletConnection',
+      id: "wallet-1",
+      type: "walletConnection",
       position: { x: 50, y: 100 },
-      data: { 
-        id: 'wallet-1', 
-        nodeType: 'walletConnection',
-        walletType: 'petra',
-        network: 'testnet',
-        autoConnect: true
+      data: {
+        id: "wallet-1",
+        nodeType: "walletConnection",
+        walletType: "petra",
+        network: "testnet",
+        autoConnect: true,
       },
     };
 
     const eventTriggerNode = {
-      id: 'event-trigger-1',
-      type: 'aptosEventTrigger',
+      id: "event-trigger-1",
+      type: "aptosEventTrigger",
       position: { x: 300, y: 200 },
-      data: { 
-        id: 'event-trigger-1', 
-        nodeType: 'aptosEventTrigger',
-        eventType: 'NFT Mint Event',
-        contractAddress: '0x1::collection::Collection',
-        collectionName: 'Aptos Monkeys',
-        pollingInterval: 10
+      data: {
+        id: "event-trigger-1",
+        nodeType: "aptosEventTrigger",
+        eventType: "NFT Mint Event",
+        contractAddress: "0x1::collection::Collection",
+        collectionName: "Aptos Monkeys",
+        pollingInterval: 10,
       },
     };
 
     const actionNode = {
-      id: 'action-1',
-      type: 'aptosAction',
+      id: "action-1",
+      type: "aptosAction",
       position: { x: 650, y: 200 },
-      data: { 
-        id: 'action-1', 
-        nodeType: 'aptosAction',
-        actionType: 'token_transfer',
-        amount: '100000000',
-        recipientAddress: '0x123...abc',
-        note: 'Welcome bonus for NFT mint!'
+      data: {
+        id: "action-1",
+        nodeType: "aptosAction",
+        actionType: "token_transfer",
+        amount: "100000000",
+        recipientAddress: "0x123...abc",
+        note: "Welcome bonus for NFT mint!",
       },
     };
 
     const outputNode = {
-      id: 'output-1',
-      type: 'customOutput',
+      id: "output-1",
+      type: "customOutput",
       position: { x: 950, y: 200 },
-      data: { 
-        id: 'output-1', 
-        nodeType: 'customOutput',
-        outputType: 'JSON',
-        outputName: 'transaction_result'
+      data: {
+        id: "output-1",
+        nodeType: "customOutput",
+        outputType: "JSON",
+        outputName: "transaction_result",
       },
     };
 
     // Create edges with proper handle connections and color coding
     const eventTriggerEdge = {
-      id: 'edge-event-trigger',
-      source: 'event-trigger-1',
-      target: 'action-1',
-      sourceHandle: 'event-trigger-1-trigger',
-      targetHandle: 'action-1-trigger',
+      id: "edge-event-trigger",
+      source: "event-trigger-1",
+      target: "action-1",
+      sourceHandle: "event-trigger-1-trigger",
+      targetHandle: "action-1-trigger",
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 25,
@@ -214,16 +256,16 @@ const FlowComponent = () => {
       animated: true,
       type: "smoothstep",
       label: "🔥 Event Trigger",
-      labelStyle: { fontSize: 12, fontWeight: 'bold', color: '#ff6b6b' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+      labelStyle: { fontSize: 12, fontWeight: "bold", color: "#ff6b6b" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
     };
 
     const eventDataEdge = {
-      id: 'edge-event-data',
-      source: 'event-trigger-1',
-      target: 'action-1',
-      sourceHandle: 'event-trigger-1-event-data',
-      targetHandle: 'action-1-data',
+      id: "edge-event-data",
+      source: "event-trigger-1",
+      target: "action-1",
+      sourceHandle: "event-trigger-1-event-data",
+      targetHandle: "action-1-data",
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 25,
@@ -237,16 +279,16 @@ const FlowComponent = () => {
       animated: true,
       type: "smoothstep",
       label: "📊 Event Data",
-      labelStyle: { fontSize: 12, fontWeight: 'bold', color: '#4ecdc4' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+      labelStyle: { fontSize: 12, fontWeight: "bold", color: "#4ecdc4" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
     };
 
     const walletDataEdge = {
-      id: 'edge-wallet-data',
-      source: 'wallet-1',
-      target: 'action-1',
-      sourceHandle: 'wallet-1-address',
-      targetHandle: 'action-1-data',
+      id: "edge-wallet-data",
+      source: "wallet-1",
+      target: "action-1",
+      sourceHandle: "wallet-1-address",
+      targetHandle: "action-1-data",
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 25,
@@ -260,16 +302,16 @@ const FlowComponent = () => {
       animated: true,
       type: "smoothstep",
       label: "💰 Wallet Data",
-      labelStyle: { fontSize: 12, fontWeight: 'bold', color: '#4ecdc4' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+      labelStyle: { fontSize: 12, fontWeight: "bold", color: "#4ecdc4" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
     };
 
     const successEdge = {
-      id: 'edge-success',
-      source: 'action-1',
-      target: 'output-1',
-      sourceHandle: 'action-1-success',
-      targetHandle: 'output-1-value',
+      id: "edge-success",
+      source: "action-1",
+      target: "output-1",
+      sourceHandle: "action-1-success",
+      targetHandle: "output-1-value",
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 25,
@@ -283,26 +325,29 @@ const FlowComponent = () => {
       animated: true,
       type: "smoothstep",
       label: "✅ Success",
-      labelStyle: { fontSize: 12, fontWeight: 'bold', color: '#26de81' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+      labelStyle: { fontSize: 12, fontWeight: "bold", color: "#26de81" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
     };
 
     // Add all nodes and edges
     setNodes([walletNode, eventTriggerNode, actionNode, outputNode]);
     setEdges([eventTriggerEdge, eventDataEdge, walletDataEdge, successEdge]);
 
-    toast.success("🎯 Event-Driven Automation Workflow Created!\n\n\"When NFT is minted → Send welcome bonus\"", {
-      duration: 6000,
-      style: {
-        background: '#dcfce7',
-        color: '#15803d',
-        border: '1px solid #86efac',
-        fontSize: '14px',
-        fontWeight: '600',
-        padding: '16px',
-        maxWidth: '400px',
-      },
-    });
+    toast.success(
+      '🎯 Event-Driven Automation Workflow Created!\n\n"When NFT is minted → Send welcome bonus"',
+      {
+        duration: 6000,
+        style: {
+          background: "#dcfce7",
+          color: "#15803d",
+          border: "1px solid #86efac",
+          fontSize: "14px",
+          fontWeight: "600",
+          padding: "16px",
+          maxWidth: "400px",
+        },
+      }
+    );
   }, [setNodes, setEdges]);
 
   // Clear all nodes and edges
@@ -319,17 +364,20 @@ const FlowComponent = () => {
   const onConnect = useCallback(
     (params) => {
       console.log("Connection attempt:", params);
-      
+
       // Validate connection before adding
       if (!isValidConnection(params)) {
-        toast.error("❌ Invalid connection! Check node compatibility and handle types.", {
-          duration: 4000,
-          style: {
-            background: '#fee2e2',
-            color: '#dc2626',
-            border: '1px solid #fca5a5',
-          },
-        });
+        toast.error(
+          "❌ Invalid connection! Check node compatibility and handle types.",
+          {
+            duration: 4000,
+            style: {
+              background: "#fee2e2",
+              color: "#dc2626",
+              border: "1px solid #fca5a5",
+            },
+          }
+        );
         return;
       }
 
@@ -350,15 +398,15 @@ const FlowComponent = () => {
         animated: true,
         type: "smoothstep",
       };
-      
+
       setEdges((eds) => addEdge(newEdge, eds));
-      
+
       toast.success("🔗 Nodes connected successfully!", {
         duration: 3000,
         style: {
-          background: '#dcfce7',
-          color: '#15803d',
-          border: '1px solid #86efac',
+          background: "#dcfce7",
+          color: "#15803d",
+          border: "1px solid #86efac",
         },
       });
     },
@@ -488,7 +536,7 @@ const FlowComponent = () => {
           }}
         >
           <SubmitButton nodes={nodes} edges={edges} />
-          
+
           {/* Sample workflow button */}
           <button
             onClick={createSampleWorkflow}
@@ -517,7 +565,7 @@ const FlowComponent = () => {
           >
             🎯 Event-Driven Demo
           </button>
-          
+
           {/* Clear workflow button */}
           {(nodes.length > 0 || edges.length > 0) && (
             <button

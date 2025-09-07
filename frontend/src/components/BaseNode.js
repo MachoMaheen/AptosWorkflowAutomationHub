@@ -91,8 +91,11 @@ export const BaseNode = ({
   const handleFieldChange = useCallback(
     (fieldName, value) => {
       // Validate inputs
-      if (!fieldName || typeof fieldName !== 'string') {
-        console.warn('Invalid fieldName provided to handleFieldChange:', fieldName);
+      if (!fieldName || typeof fieldName !== "string") {
+        console.warn(
+          "Invalid fieldName provided to handleFieldChange:",
+          fieldName
+        );
         return;
       }
 
@@ -112,7 +115,7 @@ export const BaseNode = ({
         try {
           field.onChange(value, fieldValues);
         } catch (error) {
-          console.error('Error in field onChange callback:', error);
+          console.error("Error in field onChange callback:", error);
         }
       }
     },
@@ -141,62 +144,80 @@ export const BaseNode = ({
     contentBasedHeight += 35;
 
     if (Array.isArray(fields)) {
-      fields.filter(field => field && field.name).forEach((field) => {
-        // Account for label text length
-        const labelLength = field.label ? field.label.length : 0;
-        const labelWidth = Math.max(80, labelLength * 8 + 40);
+      fields
+        .filter((field) => field && field.name)
+        .forEach((field) => {
+          // Account for label text length
+          const labelLength = field.label ? field.label.length : 0;
+          const labelWidth = Math.max(80, labelLength * 8 + 40);
 
-        // Height calculation per field type - Reduced heights for more compactness
-        let fieldHeight = 0;
+          // Height calculation per field type - Reduced heights for more compactness
+          let fieldHeight = 0;
 
-        if (field.type === "textarea") {
-          const value = fieldValues[field.name] || field.placeholder || "";
-          const lines = Math.max(2, value.split("\n").length); // Reduced minimum lines
-          fieldHeight = 16 + lines * 14 + 2; // Further reduced height for textarea
+          if (field.type === "textarea") {
+            const value = fieldValues[field.name] || field.placeholder || "";
+            const lines = Math.max(2, value.split("\n").length); // Reduced minimum lines
+            fieldHeight = 16 + lines * 14 + 2; // Further reduced height for textarea
 
-          // For textarea, consider the longest line
-          const longestLine = value
-            .split("\n")
-            .reduce((max, line) => (line.length > max ? line.length : max), 0);
-          const textWidth = Math.max(250, Math.min(450, longestLine * 9 + 60)); // Wider textarea
-          contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
-        } else if (field.type === "text" || field.type === "number") {
-        fieldHeight = 32; // Further reduced height for inputs
+            // For textarea, consider the longest line
+            const longestLine = value
+              .split("\n")
+              .reduce(
+                (max, line) => (line.length > max ? line.length : max),
+                0
+              );
+            const textWidth = Math.max(
+              250,
+              Math.min(450, longestLine * 9 + 60)
+            ); // Wider textarea
+            contentBasedWidth = Math.max(
+              contentBasedWidth,
+              textWidth,
+              labelWidth
+            );
+          } else if (field.type === "text" || field.type === "number") {
+            fieldHeight = 32; // Further reduced height for inputs
 
-        // For text inputs, ensure they can display content properly
-        const value = fieldValues[field.name] || field.placeholder || "";
-        const textLength = Math.max(
-          value.length,
-          field.placeholder ? field.placeholder.length : 0
-        );
-        const textWidth = Math.max(250, Math.min(400, textLength * 9 + 60)); // Wider inputs
-        contentBasedWidth = Math.max(contentBasedWidth, textWidth, labelWidth);
-      } else if (field.type === "select") {
-        fieldHeight = 32; // Further reduced height for selects
+            // For text inputs, ensure they can display content properly
+            const value = fieldValues[field.name] || field.placeholder || "";
+            const textLength = Math.max(
+              value.length,
+              field.placeholder ? field.placeholder.length : 0
+            );
+            const textWidth = Math.max(250, Math.min(400, textLength * 9 + 60)); // Wider inputs
+            contentBasedWidth = Math.max(
+              contentBasedWidth,
+              textWidth,
+              labelWidth
+            );
+          } else if (field.type === "select") {
+            fieldHeight = 32; // Further reduced height for selects
 
-        // For selects, consider option text lengths
-        const maxOptionLength = field.options && Array.isArray(field.options)
-          ? field.options.reduce(
-              (max, opt) => (opt?.label?.length > max ? opt.label.length : max),
-              0
-            )
-          : 0;
-        const selectWidth = Math.max(
-          250,
-          Math.min(400, maxOptionLength * 9 + 80)
-        ); // Wider selects
-        contentBasedWidth = Math.max(
-          contentBasedWidth,
-          selectWidth,
-          labelWidth
-        );
-      } else {
-        fieldHeight = 28; // Further reduced default field height
-        contentBasedWidth = Math.max(contentBasedWidth, labelWidth);
-      }
+            // For selects, consider option text lengths
+            const maxOptionLength =
+              field.options && Array.isArray(field.options)
+                ? field.options.reduce(
+                    (max, opt) =>
+                      opt?.label?.length > max ? opt.label.length : max,
+                    0
+                  )
+                : 0;
+            const selectWidth = Math.max(
+              250,
+              Math.min(400, maxOptionLength * 9 + 80)
+            ); // Wider selects
+            contentBasedWidth = Math.max(
+              contentBasedWidth,
+              selectWidth,
+              labelWidth
+            );
+          } else {
+            fieldHeight = 28; // Further reduced default field height
+            contentBasedWidth = Math.max(contentBasedWidth, labelWidth);
+          }
 
-      contentBasedHeight += fieldHeight + 2; // Minimal padding between fields
-    });
+          contentBasedHeight += fieldHeight + 2; // Minimal padding between fields
+        });
     }
 
     // Add minimal space for children content (like execute buttons)
@@ -214,7 +235,7 @@ export const BaseNode = ({
   // Render field based on type
   const renderField = (field) => {
     if (!field || !field.name) {
-      console.warn('Invalid field provided to renderField:', field);
+      console.warn("Invalid field provided to renderField:", field);
       return null;
     }
 
@@ -278,35 +299,46 @@ export const BaseNode = ({
   };
 
   return (
-    <div className={`base-node ${className}`} style={dynamicStyle} key={`${id}-${fieldValues.eventType || fieldValues.actionType || 'default'}`}>
+    <div
+      className={`base-node ${className}`}
+      style={dynamicStyle}
+      key={`${id}-${
+        fieldValues.eventType || fieldValues.actionType || "default"
+      }`}
+    >
       {/* Node status indicator */}
-      <div style={{
-        position: 'absolute',
-        top: '-5px',
-        right: '-5px',
-        width: '12px',
-        height: '12px',
-        borderRadius: '50%',
-        background: data?.isConnected ? '#26de81' : '#feca57',
-        border: '2px solid #fff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-        zIndex: 100,
-      }} title={data?.isConnected ? 'Node is connected' : 'Node needs connections'} />
+      <div
+        style={{
+          position: "absolute",
+          top: "-5px",
+          right: "-5px",
+          width: "12px",
+          height: "12px",
+          borderRadius: "50%",
+          background: data?.isConnected ? "#26de81" : "#feca57",
+          border: "2px solid #fff",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+          zIndex: 100,
+        }}
+        title={
+          data?.isConnected ? "Node is connected" : "Node needs connections"
+        }
+      />
 
       {/* Render static handles with visible dots */}
       {handles.map((handle, index) => {
         // Determine handle color based on type
         const getHandleColor = (className) => {
-          if (className?.includes('trigger')) return "#ff6b6b";
-          if (className?.includes('data')) return "#4ecdc4";
-          if (className?.includes('success')) return "#26de81";
-          if (className?.includes('error')) return "#fc5c65";
-          if (className?.includes('metadata')) return "#9b59b6";
+          if (className?.includes("trigger")) return "#ff6b6b";
+          if (className?.includes("data")) return "#4ecdc4";
+          if (className?.includes("success")) return "#26de81";
+          if (className?.includes("error")) return "#fc5c65";
+          if (className?.includes("metadata")) return "#9b59b6";
           return "#4ecdc4"; // default
         };
 
         const handleColor = getHandleColor(handle.className);
-        
+
         return (
           <Handle
             key={`handle-${handle.type}-${handle.position}-${handle.id}-${index}`}
@@ -329,7 +361,7 @@ export const BaseNode = ({
               pointerEvents: "all",
               ...handle.style,
             }}
-            className={`react-flow__handle ${handle.className || ''}`}
+            className={`react-flow__handle ${handle.className || ""}`}
             isConnectable={true}
           />
         );
@@ -339,16 +371,16 @@ export const BaseNode = ({
       {dynamicHandles.map((handle, index) => {
         // Determine handle color based on type
         const getHandleColor = (className) => {
-          if (className?.includes('trigger')) return "#ff6b6b";
-          if (className?.includes('data')) return "#4ecdc4";
-          if (className?.includes('success')) return "#26de81";
-          if (className?.includes('error')) return "#fc5c65";
-          if (className?.includes('metadata')) return "#9b59b6";
+          if (className?.includes("trigger")) return "#ff6b6b";
+          if (className?.includes("data")) return "#4ecdc4";
+          if (className?.includes("success")) return "#26de81";
+          if (className?.includes("error")) return "#fc5c65";
+          if (className?.includes("metadata")) return "#9b59b6";
           return "#4ecdc4"; // default
         };
 
         const handleColor = getHandleColor(handle.className);
-        
+
         return (
           <Handle
             key={`dynamic-handle-${handle.id}-${index}`}
@@ -371,7 +403,7 @@ export const BaseNode = ({
               pointerEvents: "all",
               ...handle.style,
             }}
-            className={`react-flow__handle ${handle.className || ''}`}
+            className={`react-flow__handle ${handle.className || ""}`}
             isConnectable={true}
           />
         );
@@ -404,14 +436,17 @@ export const BaseNode = ({
         </div>
       ) : (
         <div className="node-content">
-          {Array.isArray(fields) && fields.filter(field => field && field.name).map((field) => (
-            <div key={field.name} className="node-field">
-              {field.label && (
-                <label className="node-label">{field.label}:</label>
-              )}
-              {renderField(field)}
-            </div>
-          ))}
+          {Array.isArray(fields) &&
+            fields
+              .filter((field) => field && field.name)
+              .map((field) => (
+                <div key={field.name} className="node-field">
+                  {field.label && (
+                    <label className="node-label">{field.label}:</label>
+                  )}
+                  {renderField(field)}
+                </div>
+              ))}
           {children}
         </div>
       )}

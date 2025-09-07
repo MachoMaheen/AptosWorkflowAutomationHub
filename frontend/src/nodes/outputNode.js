@@ -197,10 +197,10 @@ export const OutputNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-value`,
-      style: { 
+      style: {
         top: "50%",
         background: "#4ecdc4",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "data-handle",
       label: "Value",
@@ -209,10 +209,10 @@ export const OutputNode = ({ id, data }) => {
       type: "target",
       position: Position.Left,
       id: `${id}-trigger`,
-      style: { 
+      style: {
         top: "25%",
         background: "#e74c3c",
-        border: "3px solid #fff"
+        border: "3px solid #fff",
       },
       className: "trigger-handle",
       label: "Trigger",
